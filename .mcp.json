@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "audette": {
+      "type": "http",
+      "url": "https://mcp-server.prod.audette.io/mcp"
+    }
+  }
+}
