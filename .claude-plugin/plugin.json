@@ -1,0 +1,11 @@
+{
+  "name": "audette-skills",
+  "version": "0.1.0",
+  "description": "Audette AI workflows — skills, MCP tools, and agents for building energy modeling, carbon reduction planning, and decarbonization roadmaps.",
+  "author": {
+    "name": "Audette",
+    "url": "https://audette.io"
+  },
+  "homepage": "https://github.com/soapboxbuild/audette-skills",
+  "license": "Apache-2.0"
+}
