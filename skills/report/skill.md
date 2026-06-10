@@ -1,12 +1,12 @@
 ---
 name: report
 description: >
-  Generate structured reports as interactive HTML artifacts. Supports decarbonization
-  roadmaps, BPS compliance summaries, acquisition due diligence, and portfolio summaries.
-  Reports include embedded Chart.js visualizations and can be saved as PDF via browser
-  print. Use when the user wants a report, analysis, or presentation for a building or
-  portfolio. Triggers on: "generate a report", "create a roadmap", "show me the compliance
-  status", "prepare a DD summary", "build a portfolio overview".
+  Generate professional building performance reports as interactive HTML artifacts.
+  Iterates with the user until the output is approved, then saves the result as an
+  example for future reports. Supports decarbonization roadmaps, BPS compliance
+  summaries, acquisition due diligence, and portfolio summaries. Triggers on:
+  "generate a report", "create a roadmap", "show me the compliance status",
+  "prepare a DD summary", "build a portfolio overview".
 version: 1.0.0
 requires:
   - audette-mcp
@@ -14,22 +14,36 @@ requires:
 
 # Audette Report Generator
 
-Generate professional building performance and decarbonization reports as self-contained
-HTML artifacts with interactive Chart.js visualizations. Users save as PDF via File → Print
-→ Save as PDF.
+Generate professional HTML reports from Audette building data. Iterate until the user
+approves, then save the output as an example for future use.
 
 **Required:** Audette MCP
 
 ---
 
-## Report Types
+## Template Library
 
-| ID | Name | Primary tools |
-|----|------|--------------|
-| `decarb-roadmap` | Decarbonization Roadmap | `get_building_model_report`, `run_measure_design_analysis` |
-| `bps-compliance` | BPS Compliance Summary | `run_compliance_analysis`, `get_building_model_details` |
-| `acquisition-dd` | Acquisition Due Diligence | `run_finance_analysis`, `get_building_model_report` |
-| `portfolio-summary` | Portfolio Summary | `list_buildings`, `get_building_model_details` (per building) |
+Reports are driven by a template library at `assets/templates/`. Each report type has:
+
+```
+assets/templates/<type>/
+  manifest.md          ← MCP tools needed, sections, formatting rules
+  examples/            ← rendered HTML examples (shipped + user-saved)
+    01-standard.html
+    <YYYY-MM-DD>-<name>.html
+```
+
+The `manifest.md` tells you what data to fetch and what to produce.
+The `examples/` files are complete rendered reports — use them as style references, not as fill-in-the-blank templates.
+
+Available types:
+
+| Type | Manifest |
+|------|---------|
+| `decarb-roadmap` | `assets/templates/decarb-roadmap/manifest.md` |
+| `bps-compliance` | `assets/templates/bps-compliance/manifest.md` |
+
+New types can be added by dropping a folder with a `manifest.md` — no skill changes needed.
 
 ---
 
@@ -41,125 +55,105 @@ Call `switch_customer_account` with `audette_account.uid`.
 
 ---
 
-## Step 2: Classify and Gather
+## Step 2: Classify Report Type
 
-If the report type is not clear from context, ask:
+If the type is not clear from context, ask:
 
 > "Which report would you like?
-> 1. Decarbonization Roadmap — retrofit recommendations and emissions trajectory
-> 2. BPS Compliance Summary — building performance standard compliance and penalty projections
+> 1. Decarbonization Roadmap — retrofit plan, emissions trajectory, financial projections
+> 2. BPS Compliance Summary — applicable regulations, penalty exposure, path to compliance
 > 3. Acquisition Due Diligence — building assessment for property acquisition
 > 4. Portfolio Summary — overview of multiple buildings"
 
-**For building-level reports**, identify the target building from `buildings[]` in config or ask.
-Note the `building_model_uid`.
-
-**Optional for all types:** Ask if the user has a client logo to embed in the cover page.
-Accept a local file path. If provided, read the file and convert to a base64 data URL:
-`data:image/png;base64,<base64_content>`. Embed inline so the HTML is self-contained.
+For building-level reports, identify the target building from `buildings[]` or ask.
 
 ---
 
-## Step 3: Load Data from Audette MCP
+## Step 3: Select Example
 
-### Decarbonization Roadmap
+Scan `assets/templates/<type>/examples/` for available example files. List them with their
+dates and names:
 
-Call in sequence:
+> "I found these examples for [report type]:
+>
+> 1. `01-standard.html` — shipped example, full report
+> 2. `2026-06-15-parkview-towers.html` — approved 2026-06-15
+> 3. Start fresh (no example reference)
+>
+> Which should I base this on?"
 
-1. `get_building_model_details` → building name, address, GFA, archetype, year built
-2. `get_reported_carbon_reduction_plan` → primary plan with all measures, plan-level financials
-3. `get_building_model_report` → full baseline energy/emissions data, yearly projections, scope breakdown
-4. `run_measure_design_analysis` → 3 additional measures not in the current plan (surface in an "Other Opportunities" section)
+If no examples exist yet, skip the question and proceed fresh using the manifest only.
 
-**Key fields to extract from the plan:**
-- Each measure: name, capex, annual savings, payback, carbon reduction, implementation year
-- Plan totals: total capex, total annual savings, NPV, IRR, simple payback
-- Baseline: total emissions (tCO2e), scope 1 and scope 2 breakdown, total energy (kWh), EUI, annual energy cost
-- Yearly emissions trajectory: baseline trajectory and post-retrofit trajectory (from the report data)
-
-### BPS Compliance Summary
-
-1. `get_building_model_details` → name, address, GFA, archetype
-2. `run_compliance_analysis` → applicable regulations, compliance status per regulation, penalty exposure, recommended fixes, citations
-
-**Key fields:**
-- Each regulation: name, jurisdiction, applicable status, current compliance status, penalty if non-compliant, lowest-cost fix
-- Overall risk: total potential penalty exposure, highest-priority gap
-
-### Acquisition Due Diligence
-
-1. `get_building_model_details` → building info
-2. `get_building_model_report` → baseline performance, systems, plans
-3. `run_finance_analysis` → capital rate, interest rate, rent price context
-4. `run_compliance_analysis` → compliance risk summary
-5. `run_incentive_capital_analysis` → available capex incentives
-
-**Key fields:**
-- Baseline EUI vs. building type benchmark
-- Top 3 retrofit opportunities by payback
-- Compliance risks and penalty exposure
-- Available incentives and rebates
-
-### Portfolio Summary
-
-1. `list_buildings` → all buildings in the account
-2. For each building: `get_building_model_details` and `get_reported_carbon_reduction_plan`
-
-**Key fields per building:** name, address, archetype, GFA, baseline EUI, baseline emissions, plan total capex, carbon reduction potential.
+If the user selects an example, read that file. Use it as the style and structure reference —
+understand the layout, visual choices, and section order. Do not copy its data.
 
 ---
 
-## Step 4: Generate the Report
+## Step 4: Load Data from Audette MCP
 
-### Decarbonization Roadmap
+Read `assets/templates/<type>/manifest.md`. Call each listed MCP tool and extract the
+key fields documented in the manifest.
 
-Use the template at `assets/templates/decarbonization-roadmap.html`. It uses `{{placeholder}}` syntax for variables and `{{#each array}}...{{/each}}` for loops.
+If a tool returns no data for a required section, note it — you will add a data gap
+callout in that section rather than omitting it or fabricating values.
 
-Replace every placeholder with extracted data. Use these rules:
-
-- Numbers: format with commas (e.g. `18,420`); emissions to 1 decimal; financials to nearest dollar
-- Missing values: render as `—` (em dash), not "N/A" or null
-- All units inline with values: "18,420 kWh", "94.2 tCO2e", "$2,341"
-
-**Chart data:** Each chart placeholder (e.g. `{{emissions_chart_data}}`) expects a JSON string representing a Chart.js dataset object. Build the objects from the extracted data and inject as `JSON.stringify(chartObject)`.
-
-**Emissions doughnut:** `labels: ['Scope 1 (Natural Gas)', 'Scope 2 (Electricity)']`, `data: [scope1, scope2]`, colors `#F7931E` and `#066ECC`.
-
-**Measures bar:** One bar per measure, `data: carbon_reduction_per_measure`, color `#00BC98`.
-
-**Emissions trajectory line:** Two datasets — baseline (red `#CC303C`) and with-measures (green `#00BC98`), year-by-year from the report data.
-
-**Cash flow line:** Cumulative cash flow starting at `-total_capex`, increasing by `annual_savings` per year, color `#7700FF`.
-
-**After replacement:** Verify that no `{{` or `}}` remain in the output. If any do, a placeholder was missed.
-
-### BPS Compliance Summary and other types
-
-No HTML template exists yet. Generate clean inline HTML following the same visual style as the roadmap template: DM Sans font, Audette color palette (`#066ECC`, `#00BC98`, `#7700FF`, `#F7931E`), letter size with 0.75in margins.
-
-Include: cover page, compliance status table (regulation → status → penalty → fix), risk summary, and citations from `run_compliance_analysis`.
+Optional: ask if the user has a client logo. Accept a local file path, read it, and
+convert to a base64 data URL for inline embedding.
 
 ---
 
-## Step 5: Return as Artifact
+## Step 5: Generate Report
 
-Return the HTML as an artifact. Add a note:
+Write a complete, self-contained HTML file:
 
-> **To save as PDF:** File → Print → Save as PDF. Recommended: Letter size, 0.75in margins.
+- Follow the section order from the manifest
+- Use the selected example as a style reference (colors, typography, layout, chart style)
+- Use `assets/design-tokens.md` for all color and typography values
+- Embed Chart.js from CDN: `https://cdn.jsdelivr.net/npm/chart.js`
+- All charts use real data from the MCP response — no placeholder values
+- Missing fields render as `—`; add a data gap callout (see `assets/components/data-gap-callout.html`) when a critical section is affected
+- Embed all assets inline (logo as base64, styles in `<style>` tags) — the file must be self-contained
+- Include a `.no-print` save button in the top-right corner with instructions to use File → Print → Save as PDF
+
+The HTML should be complete and renderable — no `{{placeholders}}` remaining.
 
 ---
 
-## Error Handling
+## Step 6: Iteration Loop
 
-**Building not modelled yet**
-> [Building name] doesn't have a complete model in Audette yet. Run `audette-equipment-survey` and `audette-energy-data` first, then generate the report.
+Present the report as an artifact. Ask:
 
-**Plan not found**
-> No carbon reduction plan found for this building. The model may still be processing after a recent equipment survey or utility data submission. Wait a few minutes and try again.
+> "Here's the [report type] for [building name]. Does this look right, or would you like any changes?"
 
-**Missing data fields**
-Don't fabricate. Render the field as `—` and add a callout box:
-> **Data gap:** [field] was not available from the Audette model. This affects [section]. To complete this section, [action].
+**If the user requests changes:**
+
+- Cosmetic changes (colors, fonts, layout, wording) → regenerate without re-fetching MCP data
+- New sections or different data scope → fetch additional data as needed, then regenerate
+- Apply feedback cumulatively — each iteration builds on the last version
+
+Keep iterating until the user explicitly approves.
+
+---
+
+## Step 7: Save Example
+
+When the user approves, ask:
+
+> "Save this as an example for future [report type] reports? It will appear as an option next time."
+
+If yes, ask for a short name (e.g. "parkview-towers", "minimal-layout", "full-incentives"):
+
+> "What should I call it? (e.g. 'parkview-towers')"
+
+Save the approved HTML to:
+```
+assets/templates/<type>/examples/<YYYY-MM-DD>-<name>.html
+```
+
+Update the manifest's examples table to include the new entry.
+
+Confirm:
+> "Saved as `assets/templates/decarb-roadmap/examples/2026-06-15-parkview-towers.html`. It will appear as an option the next time you generate a [report type]."
 
 ---
 
@@ -167,8 +161,9 @@ Don't fabricate. Render the field as `—` and add a callout box:
 
 - Always call `switch_customer_account` before any MCP calls
 - Never fabricate numbers — every figure must come from an MCP tool response
-- Always verify no `{{...}}` placeholders remain before returning the artifact
-- Use `get_reported_carbon_reduction_plan` (not `get_carbon_reduction_plan_by_id`) as the default plan fetch unless the user requests a specific plan
-- For the decarb roadmap, always call `run_measure_design_analysis` and include the 3 additional opportunities
-- Round appropriately: energy to nearest 1 kWh, emissions to 0.1 tCO2e, costs to nearest $1
-- Embed logos as base64 data URLs — no external file:// references, which break when the HTML is moved
+- Always ask which example to use before generating (when examples exist)
+- Always iterate until the user approves — do not save without approval
+- Always save after approval — ask even if the user doesn't explicitly request it
+- The HTML file must be completely self-contained (no external file references except CDN)
+- Cosmetic revisions do not require re-fetching MCP data
+- New examples do not modify the manifest's MCP tools or sections — they only extend the examples table
