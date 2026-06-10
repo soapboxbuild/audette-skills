@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{report_title}}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: #fff;
+        }
+
+        /* Print styles */
+        @media print {
+            @page {
+                margin: 0.75in;
+                size: letter;
+            }
+            .no-print {
+                display: none;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+            h2 {
+                page-break-after: avoid;
+            }
+            table {
+                page-break-inside: avoid;
+            }
+        }
+
+        /* Layout */
+        .report-container {
+            max-width: 8.5in;
+            margin: 0 auto;
+            padding: 1in;
+            background: #fff;
+        }
+
+        /* Cover Page */
+        .cover-page {
+            min-height: 9.5in;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2in 1in 1in;
+        }
+
+        .logo {
+            max-height: 60px;
+            max-width: 300px;
+            object-fit: contain;
+            margin-bottom: 2rem;
+        }
+
+        .cover-title {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: 32pt;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .cover-subtitle {
+            font-size: 18pt;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .cover-date {
+            font-size: 12pt;
+            color: #999;
+        }
+
+        .highlights-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .highlight-card {
+            background: #f8f8f8;
+            border-left: 4px solid #7700FF;
+            padding: 1rem;
+        }
+
+        .highlight-label {
+            font-size: 9pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #666;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .highlight-value {
+            font-size: 14pt;
+            font-weight: 700;
+            color: #000;
+        }
+
+        /* Typography */
+        h2 {
+            font-size: 18pt;
+            font-weight: 700;
+            color: #000;
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #7700FF;
+        }
+
+        h3 {
+            font-size: 14pt;
+            font-weight: 700;
+            color: #000;
+            margin: 1.5rem 0 0.75rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 10pt;
+        }
+
+        th {
+            background: #f5f5f5;
+            font-weight: 700;
+            text-align: left;
+            padding: 0.75rem 0.5rem;
+            border-bottom: 2px solid #7700FF;
+        }
+
+        td {
+            padding: 0.75rem 0.5rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tr:hover {
+            background: #fafafa;
+        }
+
+        .number {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Charts */
+        .chart-container {
+            margin: 2rem 0;
+            max-width: 100%;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto !important;
+        }
+
+        /* Callouts */
+        .callout {
+            background: #f0f7ff;
+            border-left: 4px solid #066ECC;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .callout-warning {
+            background: #fff8f0;
+            border-left-color: #F7931E;
+        }
+
+        .callout-success {
+            background: #f0fff8;
+            border-left-color: #00BC98;
+        }
+
+        .callout-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Recommendations */
+        .recommendation {
+            background: #f8f8ff;
+            border: 1px solid #7700FF;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .recommendation-title {
+            font-weight: 700;
+            color: #7700FF;
+            margin-bottom: 0.5rem;
+        }
+
+        .recommendation-meta {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 0.75rem;
+            font-size: 9pt;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meta-label {
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #666;
+            font-size: 8pt;
+            letter-spacing: 0.5px;
+        }
+
+        .meta-value {
+            color: #000;
+            margin-top: 0.25rem;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 3rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e0e0e0;
+            font-size: 9pt;
+            color: #666;
+            text-align: center;
+        }
+
+        /* Buttons */
+        .action-buttons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        button {
+            background: #7700FF;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11pt;
+            font-weight: 500;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            background: #5500CC;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Action buttons -->
+    <div class="action-buttons no-print">
+        <button onclick="window.print()">Save as PDF</button>
+    </div>
+
+    <div class="report-container">
+        <!-- Cover Page -->
+        <div class="cover-page">
+            <div>
+                {{#if logo_url}}
+                <img src="{{logo_url}}" alt="Logo" class="logo">
+                {{/if}}
+            </div>
+
+            <div class="cover-title">
+                <h1>{{report_title}}</h1>
+                <div class="cover-subtitle">{{property_name}}</div>
+                <div class="cover-subtitle">{{address}}</div>
+                <div class="cover-date">{{report_date}}</div>
+            </div>
+
+            <div class="highlights-grid">
+                {{#each highlights}}
+                <div class="highlight-card">
+                    <div class="highlight-label">{{label}}</div>
+                    <div class="highlight-value">{{value}}</div>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+
+        <!-- Executive Summary -->
+        <div class="page-break"></div>
+        <h2>Executive Summary</h2>
+        {{#each executive_summary}}
+        <p>{{this}}</p>
+        {{/each}}
+
+        <!-- Baseline Assessment -->
+        <h2>Baseline Assessment</h2>
+
+        <h3>Energy Performance</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th class="number">Value</th>
+                    <th>Units</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Annual Energy Consumption</td>
+                    <td class="number">{{baseline_energy_consumption}}</td>
+                    <td>kWh/yr</td>
+                </tr>
+                <tr>
+                    <td>Energy Use Intensity (EUI)</td>
+                    <td class="number">{{baseline_eui}}</td>
+                    <td>kWh/sqft/yr</td>
+                </tr>
+                <tr>
+                    <td>Energy Cost</td>
+                    <td class="number">{{baseline_energy_cost}}</td>
+                    <td>$/yr</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Emissions Profile</h3>
+        <div class="chart-container">
+            <canvas id="emissionsChart"></canvas>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Scope</th>
+                    <th class="number">Emissions</th>
+                    <th class="number">% of Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each emissions_by_scope}}
+                <tr>
+                    <td>{{scope}}</td>
+                    <td class="number">{{emissions}}</td>
+                    <td class="number">{{percentage}}%</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        <!-- Recommended Measures -->
+        <div class="page-break"></div>
+        <h2>Recommended Measures</h2>
+
+        <p>{{measures_intro}}</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Measure</th>
+                    <th class="number">Capex ($)</th>
+                    <th class="number">Savings ($/yr)</th>
+                    <th class="number">Payback (yrs)</th>
+                    <th class="number">CO2e Reduction (t/yr)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each measures}}
+                <tr>
+                    <td>{{name}}</td>
+                    <td class="number">{{capex}}</td>
+                    <td class="number">{{annual_savings}}</td>
+                    <td class="number">{{payback}}</td>
+                    <td class="number">{{carbon_reduction}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        <h3>Measure Economics</h3>
+        <div class="chart-container">
+            <canvas id="measuresChart"></canvas>
+        </div>
+
+        <!-- Implementation Timeline -->
+        <h2>Implementation Timeline</h2>
+
+        <div class="chart-container">
+            <canvas id="timelineChart"></canvas>
+        </div>
+
+        <!-- Financial Projection -->
+        <div class="page-break"></div>
+        <h2>Financial Projection</h2>
+
+        <h3>Cumulative Cash Flow</h3>
+        <div class="chart-container">
+            <canvas id="cashFlowChart"></canvas>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th class="number">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Total Capital Investment</td>
+                    <td class="number">${{total_capex}}</td>
+                </tr>
+                <tr>
+                    <td>Annual Energy Savings</td>
+                    <td class="number">${{annual_savings}}</td>
+                </tr>
+                <tr>
+                    <td>Simple Payback</td>
+                    <td class="number">{{payback}} years</td>
+                </tr>
+                <tr>
+                    <td>NPV (10yr, 5% discount)</td>
+                    <td class="number">${{npv}}</td>
+                </tr>
+                <tr>
+                    <td>IRR</td>
+                    <td class="number">{{irr}}%</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Emissions Trajectory -->
+        <h2>Emissions Trajectory</h2>
+
+        <div class="chart-container">
+            <canvas id="trajectoryChart"></canvas>
+        </div>
+
+        <div class="callout callout-success">
+            <div class="callout-title">Carbon Reduction Target</div>
+            <p>{{carbon_target_text}}</p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Generated with Audette Intelligence Platform | {{report_date}}</p>
+        </div>
+    </div>
+
+    <script>
+        // Chart.js color palette
+        const colors = {
+            primary: '#7700FF',
+            teal: '#00BC98',
+            lightTeal: '#4BF7B5',
+            blue: '#066ECC',
+            lightBlue: '#7CB7F2',
+            purple: '#7A2AEB',
+            pink: '#EB03AD',
+            lightPink: '#EF81DA',
+            orange: '#F7931E',
+            darkOrange: '#BB6E00',
+            red: '#F94646',
+            darkRed: '#CC303C'
+        };
+
+        // Common chart options
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        font: { family: 'DM Sans', size: 11 },
+                        padding: 10
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    titleColor: '#000',
+                    bodyColor: '#000',
+                    borderColor: '#7700FF',
+                    borderWidth: 1,
+                    titleFont: { family: 'DM Sans', weight: 700, size: 12 },
+                    bodyFont: { family: 'DM Sans', size: 11 },
+                    padding: 12,
+                    boxPadding: 6
+                }
+            }
+        };
+
+        // Emissions by Scope (Doughnut)
+        const emissionsCtx = document.getElementById('emissionsChart');
+        new Chart(emissionsCtx, {
+            type: 'doughnut',
+            data: {{emissions_chart_data}},
+            options: {
+                ...commonOptions,
+                plugins: {
+                    ...commonOptions.plugins,
+                    legend: { position: 'right' }
+                }
+            }
+        });
+
+        // Measures Economics (Bar)
+        const measuresCtx = document.getElementById('measuresChart');
+        new Chart(measuresCtx, {
+            type: 'bar',
+            data: {{measures_chart_data}},
+            options: {
+                ...commonOptions,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Carbon Reduction (tCO2e/yr)',
+                            font: { family: 'DM Sans', size: 11 }
+                        },
+                        grid: { color: '#E1E1E1' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Implementation Timeline (Horizontal Bar)
+        const timelineCtx = document.getElementById('timelineChart');
+        new Chart(timelineCtx, {
+            type: 'bar',
+            data: {{timeline_chart_data}},
+            options: {
+                ...commonOptions,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: { unit: 'month' },
+                        title: {
+                            display: true,
+                            text: 'Implementation Schedule',
+                            font: { family: 'DM Sans', size: 11 }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Cash Flow (Line + Bar Combo)
+        const cashFlowCtx = document.getElementById('cashFlowChart');
+        new Chart(cashFlowCtx, {
+            type: 'line',
+            data: {{cashflow_chart_data}},
+            options: {
+                ...commonOptions,
+                scales: {
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Cumulative Cash Flow ($)',
+                            font: { family: 'DM Sans', size: 11 }
+                        },
+                        grid: { color: '#E1E1E1' }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Year',
+                            font: { family: 'DM Sans', size: 11 }
+                        },
+                        grid: { color: '#E1E1E1' }
+                    }
+                }
+            }
+        });
+
+        // Emissions Trajectory (Line)
+        const trajectoryCtx = document.getElementById('trajectoryChart');
+        new Chart(trajectoryCtx, {
+            type: 'line',
+            data: {{trajectory_chart_data}},
+            options: {
+                ...commonOptions,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Emissions (tCO2e/yr)',
+                            font: { family: 'DM Sans', size: 11 }
+                        },
+                        grid: { color: '#E1E1E1' }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Year',
+                            font: { family: 'DM Sans', size: 11 }
+                        },
+                        grid: { color: '#E1E1E1' }
+                        }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
