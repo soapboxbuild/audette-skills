@@ -1,0 +1,172 @@
+{
+  "report_name": "Building Assessment Report",
+  "version": "1.0",
+  "description": "Comprehensive building assessment with energy analysis, equipment inventory, and improvement recommendations",
+  "fields": {
+    "building_name": {
+      "type": "string",
+      "description": "Name of the building",
+      "required": true,
+      "source_hint": "audette_mcp:get_building_model_details.building_name",
+      "example": "Maple Ridge Office Tower"
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Client or property owner name",
+      "required": true,
+      "source_hint": "user_input",
+      "example": "Brookfield Asset Management"
+    },
+    "assessment_date": {
+      "type": "date",
+      "description": "Date the assessment was conducted",
+      "required": true,
+      "source_hint": "user_input",
+      "format": "date:long",
+      "example": "2025-03-15"
+    },
+    "assessor_name": {
+      "type": "string",
+      "description": "Name of the person who conducted the assessment",
+      "required": false,
+      "source_hint": "user_input",
+      "default": "Audette Platform",
+      "example": "Christopher Audette"
+    },
+    "building_address": {
+      "type": "string",
+      "description": "Full street address",
+      "required": true,
+      "source_hint": "audette_mcp:get_building_model_details.address",
+      "example": "350 Bay Street, Toronto, ON M5H 2S6"
+    },
+    "building_type": {
+      "type": "string",
+      "description": "Building use type (Office, Retail, Industrial, etc.)",
+      "required": true,
+      "source_hint": "audette_mcp:get_building_model_details.building_type",
+      "example": "Office"
+    },
+    "year_built": {
+      "type": "number",
+      "description": "Year the building was constructed",
+      "required": true,
+      "source_hint": "audette_mcp:get_building_model_details.year_built",
+      "example": 1985
+    },
+    "gross_floor_area": {
+      "type": "number",
+      "description": "Total floor area in square feet",
+      "required": true,
+      "source_hint": "audette_mcp:get_building_model_details.gross_floor_area",
+      "format": "comma",
+      "example": 125000
+    },
+    "num_floors": {
+      "type": "number",
+      "description": "Number of above-ground floors",
+      "required": true,
+      "source_hint": "audette_mcp:get_building_model_details.num_floors",
+      "example": 12
+    },
+    "energy_star_score": {
+      "type": "number",
+      "description": "ENERGY STAR score (1-100)",
+      "required": false,
+      "source_hint": "audette_mcp:get_building_model_report.energy_star_score",
+      "example": 72
+    },
+    "annual_energy_kwh": {
+      "type": "number",
+      "description": "Annual energy consumption in kWh",
+      "required": true,
+      "source_hint": "audette_mcp:get_building_model_report.annual_energy_kwh",
+      "format": "comma",
+      "example": 2450000
+    },
+    "eui_kbtu_sqft": {
+      "type": "number",
+      "description": "Energy Use Intensity in kBtu per square foot",
+      "required": true,
+      "source_hint": "audette_mcp:get_building_model_report.eui",
+      "format": "decimal:1",
+      "example": 66.8
+    },
+    "annual_energy_cost": {
+      "type": "currency",
+      "description": "Annual energy expenditure",
+      "required": true,
+      "source_hint": "audette_mcp:get_building_model_report.annual_energy_cost",
+      "format": "currency:USD",
+      "example": 318500
+    },
+    "has_critical_findings": {
+      "type": "boolean",
+      "description": "Whether the assessment found critical issues",
+      "required": false,
+      "source_hint": "calculated",
+      "example": true
+    },
+    "equipment_list": {
+      "type": "array",
+      "description": "Major building equipment inventory",
+      "required": true,
+      "source_hint": "audette_mcp:get_equipment_survey.equipment",
+      "items": {
+        "name": { "type": "string", "description": "Equipment identifier" },
+        "type": { "type": "string", "description": "Equipment category" },
+        "age_years": { "type": "number", "description": "Equipment age" },
+        "condition": { "type": "string", "description": "Good/Fair/Poor" },
+        "replacement_cost": { "type": "currency", "description": "Estimated replacement cost" }
+      },
+      "example": [
+        { "name": "RTU-1", "type": "Rooftop Unit", "age_years": 18, "condition": "Poor", "replacement_cost": 65000 },
+        { "name": "RTU-2", "type": "Rooftop Unit", "age_years": 18, "condition": "Poor", "replacement_cost": 65000 },
+        { "name": "Boiler-1", "type": "Gas Boiler", "age_years": 10, "condition": "Fair", "replacement_cost": 45000 },
+        { "name": "Chiller-1", "type": "Centrifugal Chiller", "age_years": 22, "condition": "Poor", "replacement_cost": 180000 }
+      ]
+    },
+    "recommendations": {
+      "type": "array",
+      "description": "Prioritized improvement recommendations",
+      "required": true,
+      "source_hint": "audette_mcp:get_carbon_reduction_plan_by_id.measures",
+      "items": {
+        "priority": { "type": "number", "description": "Priority ranking" },
+        "title": { "type": "string", "description": "Measure title" },
+        "description": { "type": "string", "description": "Detailed description" },
+        "estimated_cost": { "type": "currency", "description": "Implementation cost" },
+        "annual_savings": { "type": "currency", "description": "Annual cost savings" },
+        "payback_years": { "type": "number", "description": "Simple payback period" },
+        "carbon_reduction_kg": { "type": "number", "description": "Annual CO2e reduction in kg" }
+      },
+      "example": [
+        {
+          "priority": 1,
+          "title": "Replace End-of-Life Rooftop Units",
+          "description": "Both RTU-1 and RTU-2 are 18 years old and in poor condition. Replace with high-efficiency variable-speed heat pump RTUs to reduce gas consumption and improve comfort.",
+          "estimated_cost": 145000,
+          "annual_savings": 28000,
+          "payback_years": 5.2,
+          "carbon_reduction_kg": 42000
+        },
+        {
+          "priority": 2,
+          "title": "LED Lighting Retrofit",
+          "description": "Convert remaining fluorescent fixtures to LED with occupancy sensors and daylight harvesting. Estimated 45% reduction in lighting energy.",
+          "estimated_cost": 85000,
+          "annual_savings": 22000,
+          "payback_years": 3.9,
+          "carbon_reduction_kg": 18500
+        }
+      ]
+    },
+    "next_steps": {
+      "type": "string",
+      "description": "Recommended next steps for the client",
+      "required": false,
+      "source_hint": "user_input",
+      "example": "We recommend scheduling a detailed engineering study for the RTU replacement (Priority 1) within the next 60 days. The LED retrofit can proceed in parallel with minimal disruption to building operations. Audette will provide ongoing monitoring of energy performance to track savings against projections."
+    }
+  }
+}
