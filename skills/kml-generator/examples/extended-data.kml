@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Portfolio with Extended Data</name>
+    <description>Portfolio with structured property metadata</description>
+
+    <Style id="default">
+      <IconStyle>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+        </Icon>
+      </IconStyle>
+      <BalloonStyle>
+        <text><![CDATA[
+          <h2>$[name]</h2>
+          <table border="1" cellpadding="5">
+            <tr><td><b>Property Type</b></td><td>$[Property_Type]</td></tr>
+            <tr><td><b>GFA</b></td><td>$[GFA] sqft</td></tr>
+            <tr><td><b>Year Built</b></td><td>$[Year_Built]</td></tr>
+            <tr><td><b>Carbon Intensity</b></td><td>$[Carbon_Intensity] kgCO2e/sqft</td></tr>
+            <tr><td><b>Energy Cost</b></td><td>$[Energy_Cost]</td></tr>
+            <tr><td><b>LL97 Compliance</b></td><td>$[LL97_Status]</td></tr>
+          </table>
+          <p><a href="$[Report_URL]">View Full Report</a></p>
+        ]]></text>
+      </BalloonStyle>
+    </Style>
+
+    <Placemark>
+      <name>Riverbank Office Building</name>
+      <description>Mixed-use office building in Manhattan</description>
+      <styleUrl>#default</styleUrl>
+
+      <ExtendedData>
+        <Data name="Property_Type">
+          <displayName>Property Type</displayName>
+          <value>Office</value>
+        </Data>
+        <Data name="GFA">
+          <displayName>Gross Floor Area</displayName>
+          <value>85,000</value>
+        </Data>
+        <Data name="Year_Built">
+          <displayName>Year Built</displayName>
+          <value>1987</value>
+        </Data>
+        <Data name="Carbon_Intensity">
+          <displayName>Carbon Intensity</displayName>
+          <value>3.6</value>
+        </Data>
+        <Data name="Energy_Cost">
+          <displayName>Annual Energy Cost</displayName>
+          <value>$2,000,000</value>
+        </Data>
+        <Data name="LL97_Status">
+          <displayName>Local Law 97 Status</displayName>
+          <value>Non-Compliant (2030-2035)</value>
+        </Data>
+        <Data name="Emissions">
+          <displayName>Annual Emissions</displayName>
+          <value>1,400 tCO2e</value>
+        </Data>
+        <Data name="Penalty_Risk">
+          <displayName>Penalty Risk (2030-2035)</displayName>
+          <value>$1,200,000</value>
+        </Data>
+        <Data name="Report_URL">
+          <displayName>Report URL</displayName>
+          <value>https://example.com/reports/riverbank-due-diligence.pdf</value>
+        </Data>
+      </ExtendedData>
+
+      <Point>
+        <coordinates>-73.9712,40.7831,0</coordinates>
+      </Point>
+    </Placemark>
+
+    <Placemark>
+      <name>Brooklyn Retail Center</name>
+      <description>Retail center in Brooklyn</description>
+      <styleUrl>#default</styleUrl>
+
+      <ExtendedData>
+        <Data name="Property_Type">
+          <displayName>Property Type</displayName>
+          <value>Retail</value>
+        </Data>
+        <Data name="GFA">
+          <displayName>Gross Floor Area</displayName>
+          <value>45,000</value>
+        </Data>
+        <Data name="Year_Built">
+          <displayName>Year Built</displayName>
+          <value>2005</value>
+        </Data>
+        <Data name="Carbon_Intensity">
+          <displayName>Carbon Intensity</displayName>
+          <value>2.9</value>
+        </Data>
+        <Data name="Energy_Cost">
+          <displayName>Annual Energy Cost</displayName>
+          <value>$850,000</value>
+        </Data>
+        <Data name="LL97_Status">
+          <displayName>Local Law 97 Status</displayName>
+          <value>Compliant</value>
+        </Data>
+        <Data name="Emissions">
+          <displayName>Annual Emissions</displayName>
+          <value>650 tCO2e</value>
+        </Data>
+        <Data name="Report_URL">
+          <displayName>Report URL</displayName>
+          <value>https://example.com/reports/brooklyn-retail.pdf</value>
+        </Data>
+      </ExtendedData>
+
+      <Point>
+        <coordinates>-73.9442,40.6782,0</coordinates>
+      </Point>
+    </Placemark>
+
+  </Document>
+</kml>

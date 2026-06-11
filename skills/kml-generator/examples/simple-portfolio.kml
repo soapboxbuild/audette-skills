@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Simple Portfolio</name>
+    <description>Basic portfolio with three buildings</description>
+
+    <Style id="default">
+      <IconStyle>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+        </Icon>
+      </IconStyle>
+    </Style>
+
+    <Placemark>
+      <name>Empire State Building</name>
+      <description>Office Tower - New York, NY</description>
+      <styleUrl>#default</styleUrl>
+      <Point>
+        <coordinates>-73.9857,40.7484,0</coordinates>
+      </Point>
+    </Placemark>
+
+    <Placemark>
+      <name>Prudential Tower</name>
+      <description>Office Tower - Boston, MA</description>
+      <styleUrl>#default</styleUrl>
+      <Point>
+        <coordinates>-71.0823,42.3467,0</coordinates>
+      </Point>
+    </Placemark>
+
+    <Placemark>
+      <name>Willis Tower</name>
+      <description>Office Tower - Chicago, IL</description>
+      <styleUrl>#default</styleUrl>
+      <Point>
+        <coordinates>-87.6359,41.8789,0</coordinates>
+      </Point>
+    </Placemark>
+
+  </Document>
+</kml>

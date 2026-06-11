@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Styled Portfolio</name>
+    <description>Portfolio with custom icons and folder organization</description>
+
+    <!-- Styles -->
+    <Style id="high-performance">
+      <IconStyle>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/pushpin/grn-pushpin.png</href>
+        </Icon>
+        <scale>1.2</scale>
+      </IconStyle>
+    </Style>
+
+    <Style id="medium-performance">
+      <IconStyle>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+        </Icon>
+      </IconStyle>
+    </Style>
+
+    <Style id="low-performance">
+      <IconStyle>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/pushpin/red-pushpin.png</href>
+        </Icon>
+        <scale>1.2</scale>
+      </IconStyle>
+    </Style>
+
+    <!-- Northeast Region -->
+    <Folder>
+      <name>Northeast</name>
+      <description>Northeast region buildings</description>
+
+      <Placemark>
+        <name>NYC Office Tower</name>
+        <description><![CDATA[
+          <h3>NYC Office Tower</h3>
+          <p><b>Location:</b> New York, NY</p>
+          <p><b>GFA:</b> 50,000 sqft</p>
+          <p><b>Carbon Intensity:</b> 2.8 kgCO2e/sqft</p>
+          <p><b>Performance:</b> High</p>
+        ]]></description>
+        <styleUrl>#high-performance</styleUrl>
+        <Point>
+          <coordinates>-73.9857,40.7484,0</coordinates>
+        </Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Boston Office</name>
+        <description><![CDATA[
+          <h3>Boston Office</h3>
+          <p><b>Location:</b> Boston, MA</p>
+          <p><b>GFA:</b> 35,000 sqft</p>
+          <p><b>Carbon Intensity:</b> 3.5 kgCO2e/sqft</p>
+          <p><b>Performance:</b> Medium</p>
+        ]]></description>
+        <styleUrl>#medium-performance</styleUrl>
+        <Point>
+          <coordinates>-71.0823,42.3467,0</coordinates>
+        </Point>
+      </Placemark>
+
+    </Folder>
+
+    <!-- Midwest Region -->
+    <Folder>
+      <name>Midwest</name>
+      <description>Midwest region buildings</description>
+
+      <Placemark>
+        <name>Chicago Warehouse</name>
+        <description><![CDATA[
+          <h3>Chicago Warehouse</h3>
+          <p><b>Location:</b> Chicago, IL</p>
+          <p><b>GFA:</b> 100,000 sqft</p>
+          <p><b>Carbon Intensity:</b> 4.2 kgCO2e/sqft</p>
+          <p><b>Performance:</b> Low</p>
+        ]]></description>
+        <styleUrl>#low-performance</styleUrl>
+        <Point>
+          <coordinates>-87.6359,41.8789,0</coordinates>
+        </Point>
+      </Placemark>
+
+    </Folder>
+
+  </Document>
+</kml>
