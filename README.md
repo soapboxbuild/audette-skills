@@ -13,7 +13,7 @@ claude plugin install audette-skills
 
 Two MCP servers are configured automatically on install:
 - **Audette MCP** (`mcp-server.prod.audette.io`) — building models, carbon plans, equipment surveys. OAuth login on first use.
-- **Soapbox MCP** (`api.admin.soapbox.build`) — RAG document search. OAuth login on first use.
+- **Soapbox RAG** (`rag.soapbox.build`) — RAG document search. OAuth login on first use.
 
 ### opencode
 
@@ -35,13 +35,13 @@ Add to your `opencode.json`:
 | `audette-equipment-survey` | Audette MCP |
 | `equipment-gap-questionnaire` | Audette MCP |
 | `report` | Audette MCP |
-| `workspace-rag` | Soapbox MCP |
-| `file-index` | Soapbox MCP (optional) |
-| `system-details` | Audette MCP + Soapbox MCP |
+| `workspace-rag` | Soapbox RAG |
+| `file-index` | Soapbox RAG (optional) |
+| `system-details` | Audette MCP + Soapbox RAG |
 | `pdf-extract` | None |
 | `osm-gfa-calculator` | None |
 | `kml-generator` | None |
-| `local-rag` | Soapbox MCP |
+| `local-rag` | Soapbox RAG |
 | `update-memory` | None |
 
 ## License

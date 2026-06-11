@@ -10,7 +10,7 @@ description: >
   about X", "find mentions of X across documents", "ingest files into search".
 version: 1.0.0
 requires:
-  - soapbox-mcp
+  - soapbox-rag
 ---
 
 # Workspace RAG
@@ -19,7 +19,7 @@ Index project documents into the Soapbox RAG system and run semantic searches
 across them. The RAG index persists across sessions and is shared with all agents
 in the org.
 
-**Required:** Soapbox MCP (provides `rag_ingest`, `rag_search`, `rag_list`, `rag_delete`)  
+**Required:** Soapbox RAG (provides `rag_ingest`, `rag_search`, `rag_list`, `rag_delete`)  
 **Optional:** `.audette-config.json` (for workspace scoping)
 
 ---

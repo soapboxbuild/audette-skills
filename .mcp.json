@@ -4,9 +4,9 @@
       "type": "http",
       "url": "https://mcp-server.prod.audette.io/mcp"
     },
-    "soapbox": {
+    "soapbox-rag": {
       "type": "http",
-      "url": "https://api.admin.soapbox.build/mcp"
+      "url": "https://rag.soapbox.build/mcp"
     }
   }
 }

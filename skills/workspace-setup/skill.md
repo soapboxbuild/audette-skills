@@ -141,8 +141,8 @@ index. This makes documents semantically searchable by all subsequent skills.
 
 Pass the `workspace_id` from the newly written config so documents are scoped to this project.
 
-If the Soapbox MCP is not connected, skip this step and note:
-> "RAG indexing skipped — Soapbox MCP not connected. Run `workspace-rag` manually when available."
+If the Soapbox RAG is not connected, skip this step and note:
+> "RAG indexing skipped — Soapbox RAG not connected. Run `workspace-rag` manually when available."
 
 ### Step 11: Confirm
 
