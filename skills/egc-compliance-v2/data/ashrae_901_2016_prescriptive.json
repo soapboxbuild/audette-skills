@@ -1,0 +1,54 @@
+{
+  "version": "ASHRAE 90.1-2016",
+  "note": "Prescriptive path minimums for residential multifamily. Values are assembly-level (not component). U-factors in IP units (Btu/hr·ft²·°F).",
+  "climate_zones": {
+    "2A": {
+      "wall_u_ip": 0.084, "roof_u_ip": 0.027, "window_u_ip": 0.65, "window_shgc": 0.25,
+      "ptac_eer": 12.0, "ptac_cop": 3.516, "boiler_afue": 0.80, "dhw_ef": 0.80,
+      "lpd_w_ft2_dwelling": 0.60, "lpd_w_ft2_corridor": 0.41,
+      "site_lat": 29.99, "site_lon": -90.25, "site_tz": -6, "site_elev_m": 1.0,
+      "site_label": "New Orleans Lakefront", "epw_file": "LA_NewOrleans_722310_TMY3.epw",
+      "design_day_htg_db_c": 2.2, "design_day_clg_db_c": 34.4, "design_day_clg_wb_c": 26.1
+    },
+    "3A": {
+      "wall_u_ip": 0.084, "roof_u_ip": 0.027, "window_u_ip": 0.60, "window_shgc": 0.25,
+      "ptac_eer": 12.0, "ptac_cop": 3.516, "boiler_afue": 0.80, "dhw_ef": 0.80,
+      "lpd_w_ft2_dwelling": 0.60, "lpd_w_ft2_corridor": 0.41,
+      "site_lat": 33.64, "site_lon": -84.44, "site_tz": -5, "site_elev_m": 313.0,
+      "site_label": "Atlanta Hartsfield", "epw_file": "GA_Atlanta_722190_TMY3.epw",
+      "design_day_htg_db_c": -4.4, "design_day_clg_db_c": 35.0, "design_day_clg_wb_c": 24.4
+    },
+    "4A": {
+      "wall_u_ip": 0.064, "roof_u_ip": 0.027, "window_u_ip": 0.40, "window_shgc": 0.40,
+      "ptac_eer": 12.0, "ptac_cop": 3.516, "boiler_afue": 0.82, "dhw_ef": 0.82,
+      "lpd_w_ft2_dwelling": 0.60, "lpd_w_ft2_corridor": 0.41,
+      "site_lat": 38.95, "site_lon": -77.45, "site_tz": -5, "site_elev_m": 85.0,
+      "site_label": "Washington Dulles", "epw_file": "VA_Sterling_724030_TMY3.epw",
+      "design_day_htg_db_c": -9.4, "design_day_clg_db_c": 34.4, "design_day_clg_wb_c": 24.4
+    },
+    "5A": {
+      "wall_u_ip": 0.064, "roof_u_ip": 0.027, "window_u_ip": 0.36, "window_shgc": 0.40,
+      "ptac_eer": 12.0, "ptac_cop": 3.516, "boiler_afue": 0.82, "dhw_ef": 0.82,
+      "lpd_w_ft2_dwelling": 0.60, "lpd_w_ft2_corridor": 0.41,
+      "site_lat": 41.27, "site_lon": -72.89, "site_tz": -5, "site_elev_m": 7.0,
+      "site_label": "New Haven Tweed Airport", "epw_file": "CT_New_Haven_725045_TMY3.epw",
+      "design_day_htg_db_c": -12.8, "design_day_clg_db_c": 32.2, "design_day_clg_wb_c": 22.8
+    },
+    "5B": {
+      "wall_u_ip": 0.064, "roof_u_ip": 0.027, "window_u_ip": 0.36, "window_shgc": 0.40,
+      "ptac_eer": 12.0, "ptac_cop": 3.516, "boiler_afue": 0.82, "dhw_ef": 0.82,
+      "lpd_w_ft2_dwelling": 0.60, "lpd_w_ft2_corridor": 0.41,
+      "site_lat": 39.87, "site_lon": -104.67, "site_tz": -7, "site_elev_m": 1611.0,
+      "site_label": "Denver Stapleton", "epw_file": "CO_Denver_724690_TMY3.epw",
+      "design_day_htg_db_c": -15.6, "design_day_clg_db_c": 34.4, "design_day_clg_wb_c": 15.6
+    },
+    "6A": {
+      "wall_u_ip": 0.051, "roof_u_ip": 0.021, "window_u_ip": 0.31, "window_shgc": 0.40,
+      "ptac_eer": 12.0, "ptac_cop": 3.516, "boiler_afue": 0.82, "dhw_ef": 0.82,
+      "lpd_w_ft2_dwelling": 0.60, "lpd_w_ft2_corridor": 0.41,
+      "site_lat": 44.88, "site_lon": -93.23, "site_tz": -6, "site_elev_m": 288.0,
+      "site_label": "Minneapolis St Paul", "epw_file": "MN_Minneapolis_726580_TMY3.epw",
+      "design_day_htg_db_c": -23.3, "design_day_clg_db_c": 32.8, "design_day_clg_wb_c": 23.3
+    }
+  }
+}

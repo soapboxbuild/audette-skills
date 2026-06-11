@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>EGC 5.1a Compliance Report — {{ report.building.name }}</title>
+<style>
+@page {
+  size: letter;
+  margin: 0;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 10px;
+  color: #1a1a2e;
+  background: white;
+}
+
+.page {
+  width: 8.5in;
+  min-height: 11in;
+  padding: 0.5in;
+  page-break-after: always;
+  position: relative;
+}
+.page:last-child { page-break-after: avoid; }
+
+/* HEADER: table layout — DO NOT use flex */
+.hdr { display: table; width: 100%; border-bottom: 2px solid #2C5F8F; padding-bottom: 8pt; margin-bottom: 14pt; }
+.hdr-logo { display: table-cell; width: 120px; vertical-align: middle; }
+.hdr-logo img { height: 28px; }
+.hdr-l { display: table-cell; vertical-align: middle; padding-left: 10px; }
+.hdr-l h2 { font-size: 13px; color: #2C5F8F; font-weight: bold; }
+.hdr-l p { font-size: 9px; color: #555; margin-top: 2px; }
+.hdr-r { display: table-cell; text-align: right; vertical-align: middle; color: #666; font-size: 8px; }
+
+/* Section headings */
+h3 { font-size: 11px; color: #2C5F8F; text-transform: uppercase; letter-spacing: 0.5px;
+     border-bottom: 1px solid #2C5F8F; padding-bottom: 3pt; margin-bottom: 8pt; margin-top: 12pt; }
+h3:first-of-type { margin-top: 0; }
+
+/* Two-column info block: table layout */
+.two-col { display: table; width: 100%; margin-bottom: 12pt; }
+.col { display: table-cell; width: 50%; vertical-align: top; padding-right: 12px; }
+.col:last-child { padding-right: 0; padding-left: 12px; }
+
+/* Compliance verdict box */
+.verdict-box {
+  border: 2px solid; border-radius: 4px; padding: 10pt;
+  margin: 12pt 0; text-align: center;
+}
+.verdict-pass { border-color: #3B8B5E; background: #F0FFF4; color: #3B8B5E; }
+.verdict-fail { border-color: #C0392B; background: #FFF5F5; color: #C0392B; }
+.verdict-box .v-title { font-size: 16px; font-weight: bold; }
+.verdict-box .v-detail { font-size: 10px; margin-top: 4pt; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin-bottom: 10pt; font-size: 9px; }
+th { background: #2C5F8F; color: white; padding: 5px 8px; text-align: left; }
+td { padding: 5px 8px; border-bottom: 1px solid #E8E8E8; }
+tr:nth-child(even) td { background: #F8F9FF; }
+.num { text-align: right; }
+.pass-cell { color: #3B8B5E; font-weight: bold; }
+.fail-cell { color: #C0392B; font-weight: bold; }
+.info-cell { color: #7B5EA7; font-style: italic; }
+
+/* Charts */
+.chart-img { width: 100%; max-width: 6in; display: block; margin: 8pt 0; }
+
+/* Solar disclaimer */
+.solar-note { font-size: 8px; color: #666; font-style: italic; margin-top: 4pt; margin-bottom: 8pt; }
+
+/* Key-value pairs in info tables */
+.kv-table { width: 100%; border-collapse: collapse; margin-bottom: 8pt; font-size: 9px; }
+.kv-table td { padding: 3px 6px; border-bottom: 1px solid #eee; }
+.kv-table td:first-child { color: #555; width: 55%; }
+.kv-table td:last-child { font-weight: bold; }
+
+/* Certification block (page 4) */
+.cert-block { border: 1px solid #CCC; padding: 14pt; margin-top: 16pt; }
+.sig-line { border-bottom: 1px solid #333; margin-top: 24pt; margin-bottom: 4pt; width: 50%; display: inline-block; }
+
+/* Footer */
+.footer { position: absolute; bottom: 0.3in; left: 0.5in; right: 0.5in;
+          font-size: 7.5px; color: #888; border-top: 1px solid #ddd; padding-top: 4pt;
+          display: table; width: calc(100% - 1in); }
+.footer-l { display: table-cell; text-align: left; }
+.footer-r { display: table-cell; text-align: right; }
+
+/* Methodology bullet list */
+ul.method-list { margin-left: 16px; font-size: 9px; line-height: 1.6; }
+ul.method-list li { margin-bottom: 2px; }
+
+/* Note text */
+.note { font-size: 8px; color: #666; font-style: italic; margin-top: 4pt; }
+
+/* Systems compare table: two side-by-side */
+.sys-table-wrap { display: table; width: 100%; margin-bottom: 10pt; }
+.sys-table-cell { display: table-cell; width: 50%; vertical-align: top; padding-right: 8px; }
+.sys-table-cell:last-child { padding-right: 0; padding-left: 8px; }
+.sys-subtitle { font-size: 9px; font-weight: bold; color: #2C5F8F; margin-bottom: 4pt; text-transform: uppercase; }
+
+/* Total row */
+.total-row td { font-weight: bold; background: #EEF2FF !important; border-top: 2px solid #2C5F8F; }
+</style>
+</head>
+<body>
+
+<!-- ===== PAGE 1: Compliance Verdict ===== -->
+<div class="page">
+
+  <div class="hdr">
+    <div class="hdr-logo">
+      {% if logo_b64 %}
+      <img src="{{ logo_b64 }}" alt="Logo">
+      {% else %}
+      <span style="font-size:11px;font-weight:bold;color:#2C5F8F;">AUDETTE</span>
+      {% endif %}
+    </div>
+    <div class="hdr-l">
+      <h2>ASHRAE 90.1-2016 Performance Path Compliance Analysis</h2>
+      <p>Green Communities Enterprise Green Communities Criteria 5.1a</p>
+    </div>
+    <div class="hdr-r">
+      {{ report.building.name }}<br>
+      {{ report.building.city }}, {{ report.building.state }}<br>
+      {{ report.building.get('analysis_date', '2026') }}
+    </div>
+  </div>
+
+  <h3>Project Information</h3>
+  <div class="two-col">
+    <div class="col">
+      <table class="kv-table">
+        <tr><td>Building Name</td><td>{{ report.building.name }}</td></tr>
+        <tr><td>Address</td><td>{{ report.building.address }}</td></tr>
+        <tr><td>Climate Zone</td><td>ASHRAE {{ report.building.climate_zone }}</td></tr>
+        <tr><td>Building Type</td><td>Multifamily Residential</td></tr>
+        <tr><td>Stories</td><td>{{ report.building.stories }}</td></tr>
+      </table>
+    </div>
+    <div class="col">
+      <table class="kv-table">
+        <tr><td>Gross Floor Area</td><td>{{ "{:,.0f}".format(report.building.gfa_ft2) }} ft²</td></tr>
+        <tr><td>Residential Units</td><td>{{ report.building.units }}</td></tr>
+        <tr><td>Compliance Standard</td><td>ASHRAE 90.1-2016</td></tr>
+        <tr><td>Compliance Criterion</td><td>EGC 5.1a Performance Path</td></tr>
+        <tr><td>Compliance Basis</td><td>Pre-solar site EUI</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h3>Compliance Verdict</h3>
+  {% if report.compliance_pass %}
+  <div class="verdict-box verdict-pass">
+    <div class="v-title">✓ COMPLIANT — ASHRAE 90.1-2016 EGC 5.1a</div>
+    <div class="v-detail">
+      As-Built EUI ({{ report.scenarios.as_built.eui_kwh_ft2 }} kWh/ft²·yr) is
+      {{ report.compliance_margin_pct }}% below Code Minimum ({{ report.scenarios.code_min.eui_kwh_ft2 }} kWh/ft²·yr)
+      — margin: {{ report.compliance_margin_kwh_ft2 }} kWh/ft²·yr
+    </div>
+  </div>
+  {% else %}
+  <div class="verdict-box verdict-fail">
+    <div class="v-title">✗ NON-COMPLIANT — ASHRAE 90.1-2016 EGC 5.1a</div>
+    <div class="v-detail">
+      As-Built EUI ({{ report.scenarios.as_built.eui_kwh_ft2 }} kWh/ft²·yr) exceeds
+      Code Minimum ({{ report.scenarios.code_min.eui_kwh_ft2 }} kWh/ft²·yr)
+      by {{ (report.compliance_margin_kwh_ft2 * -1)|round(2) }} kWh/ft²·yr
+    </div>
+  </div>
+  {% endif %}
+
+  <h3>EUI Comparison</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Scenario</th>
+        <th class="num">EUI (kWh/ft²·yr)</th>
+        <th class="num">EUI (kBtu/ft²·yr)</th>
+        <th class="num">vs. Code Min</th>
+        <th>Compliance</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>As-Built (Calibrated)</td>
+        <td class="num">{{ report.scenarios.as_built.eui_kwh_ft2 }}</td>
+        <td class="num">{{ report.scenarios.as_built.eui_kbtu_ft2 }}</td>
+        <td class="num {% if report.compliance_pass %}pass-cell{% else %}fail-cell{% endif %}">
+          {{ "%+.2f"|format(report.compliance_margin_kwh_ft2 * -1) }}
+        </td>
+        <td class="{% if report.compliance_pass %}pass-cell{% else %}fail-cell{% endif %}">
+          {% if report.compliance_pass %}PASS{% else %}FAIL{% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td>Code Minimum (90.1-2016)</td>
+        <td class="num">{{ report.scenarios.code_min.eui_kwh_ft2 }}</td>
+        <td class="num">{{ report.scenarios.code_min.eui_kbtu_ft2 }}</td>
+        <td class="num">—</td>
+        <td>Baseline</td>
+      </tr>
+      <tr>
+        <td>Retrofit Plan</td>
+        <td class="num">{{ report.scenarios.retrofit.eui_kwh_ft2 }}</td>
+        <td class="num">{{ report.scenarios.retrofit.eui_kbtu_ft2 }}</td>
+        <td class="num pass-cell">
+          {{ "%+.2f"|format(report.scenarios.code_min.eui_kwh_ft2 - report.scenarios.retrofit.eui_kwh_ft2) }}
+        </td>
+        <td class="pass-cell">PASS</td>
+      </tr>
+      {% if report.scenarios.net_solar %}
+      <tr>
+        <td class="info-cell">Retrofit + Solar PV <em>(informational only)</em></td>
+        <td class="num info-cell">{{ report.scenarios.net_solar.eui_kwh_ft2 }}</td>
+        <td class="num info-cell">{{ report.scenarios.net_solar.eui_kbtu_ft2 }}</td>
+        <td class="num info-cell">
+          {{ "%+.2f"|format(report.scenarios.code_min.eui_kwh_ft2 - report.scenarios.net_solar.eui_kwh_ft2) }}
+        </td>
+        <td class="info-cell">Informational</td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+  {% if report.solar_kwh_yr %}
+  <p class="solar-note">* Solar PV generation ({{ "{:,.0f}".format(report.solar_kwh_yr) }} kWh/yr) is shown for informational purposes only and is NOT used in the EGC 5.1a compliance determination. Compliance is evaluated pre-solar per EGC 5.1a requirements.</p>
+  {% endif %}
+
+  <h3>EUI Comparison Chart</h3>
+  <img class="chart-img" src="data:image/png;base64,{{ charts.eui_bar }}" alt="EUI Bar Chart">
+
+  <div class="footer">
+    <div class="footer-l">Prepared by Audette Inc. | Confidential</div>
+    <div class="footer-r">Page 1 of 4</div>
+  </div>
+</div>
+
+
+<!-- ===== PAGE 2: Building Systems ===== -->
+<div class="page">
+
+  <div class="hdr">
+    <div class="hdr-logo">
+      {% if logo_b64 %}<img src="{{ logo_b64 }}" alt="Logo">{% else %}<span style="font-size:11px;font-weight:bold;color:#2C5F8F;">AUDETTE</span>{% endif %}
+    </div>
+    <div class="hdr-l">
+      <h2>Building Systems Description</h2>
+      <p>{{ report.building.name }} — ASHRAE 90.1-2016 Performance Path</p>
+    </div>
+    <div class="hdr-r">{{ report.building.city }}, {{ report.building.state }}</div>
+  </div>
+
+  <h3>As-Built vs. Code Minimum Systems</h3>
+  <div class="sys-table-wrap">
+    <div class="sys-table-cell">
+      <div class="sys-subtitle">As-Built Systems (Actual)</div>
+      <table class="kv-table">
+        <tr><td colspan="2" style="background:#E8F0FF;font-weight:bold;padding:3px 6px;">HVAC</td></tr>
+        <tr><td>System Type</td><td>{{ report.building.hvac_type|upper }}</td></tr>
+        <tr><td>Heating Fuel</td><td>{{ report.building.hvac_heating_fuel|title }}</td></tr>
+        <tr><td>Heating Efficiency</td><td>AFUE {{ "%.2f"|format(report.building.heating_efficiency) }}</td></tr>
+        <tr><td>Cooling EER</td><td>{{ report.building.cooling_eer }}</td></tr>
+        <tr><td colspan="2" style="background:#E8F0FF;font-weight:bold;padding:3px 6px;">DHW</td></tr>
+        <tr><td>Fuel</td><td>{{ report.building.dhw_fuel|title }}</td></tr>
+        <tr><td>Efficiency (EF)</td><td>{{ "%.2f"|format(report.building.dhw_efficiency) }}</td></tr>
+        <tr><td colspan="2" style="background:#E8F0FF;font-weight:bold;padding:3px 6px;">Envelope</td></tr>
+        <tr><td>Wall U-factor</td><td>U-{{ "%.3f"|format(report.building.wall_u_ip) }}</td></tr>
+        <tr><td>Roof U-factor</td><td>U-{{ "%.3f"|format(report.building.roof_u_ip) }}</td></tr>
+        <tr><td>Window U-factor</td><td>U-{{ "%.2f"|format(report.building.window_u_ip) }}</td></tr>
+        <tr><td>Window SHGC</td><td>{{ "%.2f"|format(report.building.window_shgc) }}</td></tr>
+        <tr><td colspan="2" style="background:#E8F0FF;font-weight:bold;padding:3px 6px;">Lighting</td></tr>
+        <tr><td>Interior LPD</td><td>{{ report.building.lighting_lpd_w_ft2 }} W/ft²</td></tr>
+        <tr><td>Lamp Type</td><td>LED</td></tr>
+      </table>
+    </div>
+    <div class="sys-table-cell">
+      <div class="sys-subtitle">Code Minimum (90.1-2016, CZ {{ report.building.climate_zone }})</div>
+      <table class="kv-table">
+        <tr><td colspan="2" style="background:#FFE8D5;font-weight:bold;padding:3px 6px;">HVAC</td></tr>
+        <tr><td>System Type</td><td>PTAC</td></tr>
+        <tr><td>Heating Fuel</td><td>Gas</td></tr>
+        <tr><td>Heating Efficiency</td><td>AFUE 0.82</td></tr>
+        <tr><td>Cooling EER</td><td>12.0</td></tr>
+        <tr><td colspan="2" style="background:#FFE8D5;font-weight:bold;padding:3px 6px;">DHW</td></tr>
+        <tr><td>Fuel</td><td>Gas</td></tr>
+        <tr><td>Efficiency (EF)</td><td>0.82 (90.1-2016 Table 7.8)</td></tr>
+        <tr><td colspan="2" style="background:#FFE8D5;font-weight:bold;padding:3px 6px;">Envelope</td></tr>
+        <tr><td>Wall U-factor</td><td>U-0.064</td></tr>
+        <tr><td>Roof U-factor</td><td>U-0.027</td></tr>
+        <tr><td>Window U-factor</td><td>U-0.36</td></tr>
+        <tr><td>Window SHGC</td><td>0.40</td></tr>
+        <tr><td colspan="2" style="background:#FFE8D5;font-weight:bold;padding:3px 6px;">Lighting</td></tr>
+        <tr><td>Interior LPD</td><td>0.60 W/ft² (Table 9.6.1)</td></tr>
+        <tr><td>Lamp Type</td><td>Standard</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h3>End-Use Breakdown</h3>
+  <img class="chart-img" src="data:image/png;base64,{{ charts.end_use_stack }}" alt="End-Use Stacked Chart">
+
+  {% set ab = report.scenarios.as_built %}
+  {% set cm = report.scenarios.code_min %}
+  {% set rf = report.scenarios.retrofit %}
+  {% set eu_keys = ['heating', 'cooling', 'dhw', 'lighting', 'plug_loads'] %}
+  <table>
+    <thead>
+      <tr>
+        <th>End Use</th>
+        <th class="num">As-Built (kWh/yr)</th>
+        <th class="num">Code Min (kWh/yr)</th>
+        <th class="num">Retrofit (kWh/yr)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for eu in eu_keys %}
+      <tr>
+        <td>{{ eu.replace('_', ' ')|title }}</td>
+        <td class="num">{{ "{:,.0f}".format(ab.end_uses.get(eu, 0)) }}</td>
+        <td class="num">{{ "{:,.0f}".format(cm.end_uses.get(eu, 0)) }}</td>
+        <td class="num">{{ "{:,.0f}".format(rf.end_uses.get(eu, 0)) }}</td>
+      </tr>
+      {% endfor %}
+      <tr class="total-row">
+        <td>TOTAL Site Energy</td>
+        <td class="num">{{ "{:,.0f}".format(ab.total_kwh_yr) }}</td>
+        <td class="num">{{ "{:,.0f}".format(cm.total_kwh_yr) }}</td>
+        <td class="num">{{ "{:,.0f}".format(rf.total_kwh_yr) }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="footer">
+    <div class="footer-l">Prepared by Audette Inc. | Confidential</div>
+    <div class="footer-r">Page 2 of 4</div>
+  </div>
+</div>
+
+
+<!-- ===== PAGE 3: ECM Table ===== -->
+<div class="page">
+
+  <div class="hdr">
+    <div class="hdr-logo">
+      {% if logo_b64 %}<img src="{{ logo_b64 }}" alt="Logo">{% else %}<span style="font-size:11px;font-weight:bold;color:#2C5F8F;">AUDETTE</span>{% endif %}
+    </div>
+    <div class="hdr-l">
+      <h2>Energy Conservation Measures</h2>
+      <p>{{ report.building.name }} — Audette Recommendations Plan</p>
+    </div>
+    <div class="hdr-r">{{ report.building.city }}, {{ report.building.state }}</div>
+  </div>
+
+  <h3>ECM Summary (from Audette Plan)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:5%">#</th>
+        <th style="width:32%">Measure</th>
+        <th class="num" style="width:8%">Year</th>
+        <th class="num" style="width:18%">Annual Savings (kWh/yr)</th>
+        <th class="num" style="width:18%">Capital Cost ($)</th>
+        <th class="num" style="width:19%">Simple Payback (yr)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set non_solar = report.ecm_measures | selectattr('category', 'ne', 'solar') | list %}
+      {% set solar_measures = report.ecm_measures | selectattr('category', 'eq', 'solar') | list %}
+      {% for m in non_solar %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ m.name }}</td>
+        <td class="num">{{ m.year or '—' }}</td>
+        <td class="num">{{ "{:,.0f}".format(m.annual_savings_kwh) }}</td>
+        <td class="num">
+          {% if m.cost %}
+            ${{ "{:,.0f}".format(m.cost) }}{% if m.cost_is_estimated %} †{% else %} *{% endif %}
+          {% else %}TBD{% endif %}
+        </td>
+        <td class="num">
+          {% if m.cost and m.annual_savings_kwh %}
+            {% set rate = 0.12 %}
+            {{ "%.1f"|format(m.cost / (m.annual_savings_kwh * rate)) }}
+          {% else %}—{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      {% for m in solar_measures %}
+      <tr style="background:#F5F0FF;">
+        <td>{{ non_solar|length + loop.index }}</td>
+        <td class="info-cell">{{ m.name }} <em>(generation, informational)</em></td>
+        <td class="num">—</td>
+        <td class="num info-cell">{{ "{:,.0f}".format(m.solar_gen_kwh) }} gen.</td>
+        <td class="num info-cell">
+          {% if m.cost %}${{ "{:,.0f}".format(m.cost) }}{% if m.cost_is_estimated %} †{% else %} *{% endif %}
+          {% else %}TBD{% endif %}
+        </td>
+        <td class="num info-cell">
+          {% if m.cost and m.solar_gen_kwh %}
+            {% set rate = 0.12 %}
+            {{ "%.1f"|format(m.cost / (m.solar_gen_kwh * rate)) }}
+          {% else %}—{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      <!-- Totals row (ex. solar) -->
+      {% set total_savings = non_solar | sum(attribute='annual_savings_kwh') %}
+      {% set total_cost = non_solar | selectattr('cost') | sum(attribute='cost') %}
+      <tr class="total-row">
+        <td colspan="2">TOTAL (excluding Solar PV)</td>
+        <td></td>
+        <td class="num">{{ "{:,.0f}".format(total_savings) }}</td>
+        <td class="num">
+          {% if total_cost %}${{ "{:,.0f}".format(total_cost) }}{% else %}—{% endif %}
+        </td>
+        <td class="num">
+          {% if total_cost and total_savings %}
+            {% set rate = 0.12 %}
+            {{ "%.1f"|format(total_cost / (total_savings * rate)) }}
+          {% else %}—{% endif %}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="note">† Cost estimated by Audette model (not user-provided; treat as order-of-magnitude)</p>
+  <p class="note">* Cost provided by project team</p>
+  <p class="note">Payback calculated using blended electricity rate of $0.12/kWh. Solar PV generation shown for information only — does NOT affect EGC compliance verdict.</p>
+
+  {% if ecm_data.plans_queried %}
+  <p class="note" style="margin-top:8pt;">Plans queried: {{ ecm_data.plans_queried | join(', ') }}</p>
+  {% endif %}
+
+  <h3>Utility Cost Savings Estimate</h3>
+  {% set rate_kwh = 0.12 %}
+  {% set annual_savings_kwh = non_solar | sum(attribute='annual_savings_kwh') %}
+  {% set annual_savings_usd = annual_savings_kwh * rate_kwh %}
+  <table>
+    <thead>
+      <tr>
+        <th>Metric</th>
+        <th class="num">Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Annual Energy Savings (ex. solar)</td><td class="num">{{ "{:,.0f}".format(annual_savings_kwh) }} kWh/yr</td></tr>
+      <tr><td>Blended Electricity Rate</td><td class="num">${{ "%.2f"|format(rate_kwh) }}/kWh</td></tr>
+      <tr><td>Estimated Annual Cost Savings</td><td class="num">${{ "{:,.0f}".format(annual_savings_usd) }}/yr</td></tr>
+      {% if total_cost %}
+      <tr><td>Total Capital Cost (ex. solar)</td><td class="num">${{ "{:,.0f}".format(total_cost) }}</td></tr>
+      <tr><td>Simple Payback</td><td class="num">{{ "%.1f"|format(total_cost / annual_savings_usd) if annual_savings_usd else '—' }} years</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+
+  <div class="footer">
+    <div class="footer-l">Prepared by Audette Inc. | Confidential</div>
+    <div class="footer-r">Page 3 of 4</div>
+  </div>
+</div>
+
+
+<!-- ===== PAGE 4: Methodology ===== -->
+<div class="page">
+
+  <div class="hdr">
+    <div class="hdr-logo">
+      {% if logo_b64 %}<img src="{{ logo_b64 }}" alt="Logo">{% else %}<span style="font-size:11px;font-weight:bold;color:#2C5F8F;">AUDETTE</span>{% endif %}
+    </div>
+    <div class="hdr-l">
+      <h2>Methodology and Assumptions</h2>
+      <p>{{ report.building.name }} — ASHRAE 90.1-2016 EGC 5.1a</p>
+    </div>
+    <div class="hdr-r">{{ report.building.city }}, {{ report.building.state }}</div>
+  </div>
+
+  <div class="two-col">
+    <div class="col">
+      <h3>Energy Simulation</h3>
+      <table class="kv-table">
+        <tr><td>Software</td><td>EnergyPlus 24.1.0</td></tr>
+        <tr><td>Weather File</td><td>{{ report.building.city }}, {{ report.building.state }} TMY3</td></tr>
+        <tr><td>USAF Station</td><td>725045 (New Haven Tweed)</td></tr>
+        <tr><td>Model Type</td><td>15-zone simplified box model</td></tr>
+        <tr><td>Zone Layout</td><td>5 zones per floor × {{ report.building.stories }} floors</td></tr>
+        <tr><td>Floor-to-Floor Height</td><td>9.0 ft (default)</td></tr>
+        <tr><td>Perimeter Zone Depth</td><td>15 ft</td></tr>
+        <tr><td>Window-to-Wall Ratio</td><td>{{ report.building.get('wwr', 0.30) }}</td></tr>
+      </table>
+
+      <h3>Compliance Standard</h3>
+      <table class="kv-table">
+        <tr><td>Standard</td><td>ASHRAE 90.1-2016</td></tr>
+        <tr><td>Criterion</td><td>EGC 5.1a Performance Path</td></tr>
+        <tr><td>Climate Zone</td><td>{{ report.building.climate_zone }}</td></tr>
+        <tr><td>Compliance Basis</td><td>Pre-solar site EUI</td></tr>
+        <tr><td>Solar Treatment</td><td>Informational only (not in verdict)</td></tr>
+      </table>
+    </div>
+    <div class="col">
+      <h3>Calibration Results</h3>
+      <table class="kv-table">
+        <tr><td>Target Total kWh/yr</td><td>{{ "{:,.0f}".format(report.building.utility_electric_kwh_yr + report.building.utility_gas_kwh_yr) }}</td></tr>
+        <tr><td>Target EUI</td><td>{{ report.building.eui_kwh_ft2 }} kWh/ft²·yr</td></tr>
+        <tr><td>Simulated EUI</td><td>{{ report.scenarios.as_built.eui_kwh_ft2 }} kWh/ft²·yr</td></tr>
+        <tr><td>Utility Electric</td><td>{{ "{:,.0f}".format(report.building.utility_electric_kwh_yr) }} kWh/yr</td></tr>
+        <tr><td>Utility Gas</td><td>{{ "{:,.0f}".format(report.building.utility_gas_kwh_yr) }} kWh/yr</td></tr>
+      </table>
+
+      <h3>Key Assumptions</h3>
+      <ul class="method-list">
+        <li>Occupancy: ASHRAE residential schedule (8hr occupied, 16hr reduced)</li>
+        <li>DHW: {{ report.building.get('dhw_gal_unit_day', 14.66) }} gal/unit/day × {{ report.building.units }} units (ASHRAE 189.1 default)</li>
+        <li>Calibration knobs: infiltration ACH (primary), plug loads W/ft² (secondary)</li>
+        <li>DHW efficiency not adjusted during calibration</li>
+        <li>Code-min DHW efficiency fixed at EF 0.82 (90.1-2016 Table 7.8)</li>
+        {% if report.solar_kwh_yr %}
+        <li>Solar PV generation ({{ "{:,.0f}".format(report.solar_kwh_yr) }} kWh/yr) from Audette Recommendations plan; not included in compliance verdict</li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+
+  <h3>Data Sources</h3>
+  <ul class="method-list">
+    <li>Building geometry, utility actuals, and baseline EUI: Audette platform (building UID: {{ report.building.get('uid', 'see project file') }})</li>
+    <li>Equipment specifications: PCNA / CNA documents on file</li>
+    <li>Audette ECM plans queried: {{ ecm_data.plans_queried | join(', ') if ecm_data.plans_queried else 'N/A' }}</li>
+    <li>ASHRAE 90.1-2016 prescriptive values: ASHRAE Standard 90.1-2016, Tables 5.5.3.1, 6.8.1-4, 7.8, 9.6.1</li>
+  </ul>
+
+  <div class="cert-block">
+    <p style="font-size:10px;font-weight:bold;margin-bottom:8pt;">CERTIFICATION</p>
+    <p style="font-size:9px;line-height:1.6;">
+      This analysis was prepared in accordance with ASHRAE Standard 90.1-2016 performance path requirements
+      for Green Communities Enterprise Green Communities Criteria 5.1a. The energy model was calibrated to
+      Audette platform utility actuals and represents a reasonable simulation of the building's energy performance.
+      Solar PV generation is shown supplementally and has not been included in the compliance determination.
+    </p>
+    <div class="two-col" style="margin-top:16pt;">
+      <div class="col">
+        <div class="sig-line"></div>
+        <p style="font-size:8px;">Prepared by</p>
+        <p style="font-size:8px;margin-top:2pt;">Company: Audette Inc.</p>
+        <p style="font-size:8px;margin-top:8pt;">Date: ___________________</p>
+      </div>
+      <div class="col">
+        <div class="sig-line"></div>
+        <p style="font-size:8px;">Reviewed by</p>
+        <p style="font-size:8px;margin-top:2pt;">Title: ____________________</p>
+        <p style="font-size:8px;margin-top:2pt;">Company: {{ report.building.get('contact_company', '__________________') }}</p>
+        <p style="font-size:8px;margin-top:8pt;">Date: ___________________</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-l">Prepared by Audette Inc. | Confidential — Not for public distribution</div>
+    <div class="footer-r">Page 4 of 4</div>
+  </div>
+</div>
+
+</body>
+</html>
