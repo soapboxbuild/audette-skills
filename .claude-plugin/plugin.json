@@ -7,5 +7,6 @@
     "url": "https://audette.io"
   },
   "homepage": "https://github.com/soapboxbuild/audette-skills",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "skills": ["skills"]
 }

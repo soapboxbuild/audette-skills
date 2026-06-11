@@ -7,12 +7,10 @@
   "plugins": [
     {
       "name": "audette-skills",
-      "source": {
-        "source": "github",
-        "repo": "soapboxbuild/audette-skills"
-      },
+      "source": ".",
       "description": "Audette AI workflows — skills, MCP tools, and agents for building energy modeling, carbon reduction planning, and decarbonization roadmaps.",
-      "version": "0.1.0"
+      "version": "0.1.0",
+      "skills": ["skills"]
     }
   ]
 }
