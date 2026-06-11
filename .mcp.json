@@ -3,6 +3,10 @@
     "audette": {
       "type": "http",
       "url": "https://mcp-server.prod.audette.io/mcp"
+    },
+    "soapbox": {
+      "type": "http",
+      "url": "https://api.admin.soapbox.build/mcp"
     }
   }
 }

@@ -134,7 +134,17 @@ Write `.audette-config.json` with all collected values and `"last_updated": <ISO
 
 Invoke the `file-index` skill to scan the workspace and create `.file-index.md`.
 
-### Step 10: Confirm
+### Step 10: RAG Indexing
+
+Invoke the `workspace-rag` skill to ingest all project documents into the Soapbox RAG
+index. This makes documents semantically searchable by all subsequent skills.
+
+Pass the `workspace_id` from the newly written config so documents are scoped to this project.
+
+If the Soapbox MCP is not connected, skip this step and note:
+> "RAG indexing skipped — Soapbox MCP not connected. Run `workspace-rag` manually when available."
+
+### Step 11: Confirm
 
 Show a summary:
 
@@ -147,6 +157,7 @@ Documents:  [platform] — [folder_url]
 Account:    [account.name] ([account.uid])
 Buildings:  [N] cached
 File index: .file-index.md
+RAG index:  [N files indexed / skipped]
 ```
 
 ---
