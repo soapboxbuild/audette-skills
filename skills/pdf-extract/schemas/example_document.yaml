@@ -1,0 +1,238 @@
+# Example Document Schema Template
+#
+# This is a GENERIC template showing all field types and extraction strategies.
+# Use this as a reference when creating schemas for any document type:
+# - Property assessments
+# - Utility bills
+# - Inspection reports
+# - Financial statements
+# - Any structured document with labeled fields
+#
+# The extraction engine uses three strategies in order:
+# 1. Table extraction (highest confidence)
+# 2. Text proximity (medium confidence)
+# 3. Regex pattern matching (fallback)
+
+fields:
+  # ============================================================================
+  # TEXT FIELDS
+  # ============================================================================
+  # Use type: text for any string value (names, addresses, identifiers, etc.)
+
+  document_id:
+    label: "Document ID"
+    type: text
+    search_terms:
+      - "Document ID"
+      - "Doc ID"
+      - "Reference Number"
+    # WHEN TO USE search_terms:
+    # - List the exact label as it appears in the document
+    # - Include common variations (abbreviations, alternate wording)
+    # - Order matters: most specific/common terms first
+    # - Case-insensitive matching is automatic
+
+    # WHEN TO USE fallback:
+    # - If the field might be labeled differently in older document versions
+    # - If regional variations exist (e.g., "Postcode" vs "ZIP Code")
+    # - Don't overuse: too many fallbacks reduce precision
+    fallback:
+      - "Control Number"
+      - "File Number"
+
+    # WHEN TO USE page_range:
+    # - If you know the field only appears on specific pages
+    # - Improves speed and reduces false matches
+    # - Format: [start_page, end_page] (1-indexed, inclusive)
+    # - Example: [1, 2] searches only pages 1 and 2
+    page_range: [1, 3]
+
+    # WHEN TO USE pattern:
+    # - To validate the extracted value matches expected format
+    # - To extract specific format from longer text
+    # - Uses Python regex syntax
+    # - Example: Only accept values starting with "DOC-" followed by numbers
+    pattern: "DOC-\\d+"
+
+  property_address:
+    label: "Property Address"
+    type: text
+    search_terms:
+      - "Property Address"
+      - "Site Address"
+      - "Location"
+    # Simple text field - no pattern needed for free-form addresses
+    # No page_range - could appear anywhere in document
+
+  # ============================================================================
+  # NUMBER FIELDS
+  # ============================================================================
+  # Use type: number for integers or decimals
+  # Automatic cleaning: removes commas, converts to int/float
+
+  total_square_feet:
+    label: "Total Square Feet"
+    type: number
+    search_terms:
+      - "Total Square Feet"
+      - "Gross Square Footage"
+      - "Total Area"
+    # Pattern validates format: number with optional comma separators
+    pattern: "[\\d,]+"
+    # Numbers are often in tables or summary sections
+    page_range: [1, 2]
+
+  assessed_value:
+    label: "Assessed Value"
+    type: number
+    search_terms:
+      - "Assessed Value"
+      - "Total Assessment"
+    # Pattern for currency: optional $ symbol, numbers with commas
+    pattern: "\\$?[\\d,]+"
+    fallback:
+      - "Market Value"
+      - "Appraised Value"
+
+  year_built:
+    label: "Year Built"
+    type: number
+    search_terms:
+      - "Year Built"
+      - "Construction Year"
+      - "Built"
+    # Pattern ensures 4-digit year (1800-2099)
+    pattern: "(19|20)\\d{2}"
+
+  # ============================================================================
+  # DATE FIELDS
+  # ============================================================================
+  # Use type: date for date values
+  # Extraction returns raw text - downstream processing can parse formats
+
+  report_date:
+    label: "Report Date"
+    type: date
+    search_terms:
+      - "Report Date"
+      - "Date of Report"
+      - "Inspection Date"
+    # Pattern matches common date formats: MM/DD/YYYY or YYYY-MM-DD
+    pattern: "\\d{1,2}/\\d{1,2}/\\d{4}|\\d{4}-\\d{2}-\\d{2}"
+    page_range: [1, 1]
+
+  effective_date:
+    label: "Effective Date"
+    type: date
+    search_terms:
+      - "Effective Date"
+      - "As of Date"
+    # Pattern for dates with month names: January 1, 2024
+    pattern: "(January|February|March|April|May|June|July|August|September|October|November|December)\\s+\\d{1,2},?\\s+\\d{4}"
+
+  # ============================================================================
+  # TABLE EXTRACTION FIELDS
+  # ============================================================================
+  # The extraction engine automatically finds tables and searches within them
+  # Use specific search_terms that appear as table headers or row labels
+
+  annual_energy_cost:
+    label: "Annual Energy Cost"
+    type: number
+    search_terms:
+      - "Annual Energy Cost"
+      - "Total Energy Cost"
+    # Tables often found in middle/end of reports
+    page_range: [2, 5]
+    # Pattern ensures we extract currency value
+    pattern: "\\$?[\\d,]+\\.?\\d*"
+
+  monthly_electricity_usage:
+    label: "Monthly Electricity (kWh)"
+    type: number
+    search_terms:
+      - "Electricity"
+      - "Electric Usage"
+      - "kWh"
+    # This would extract from a utilities table
+    # The extractor looks in the cell to the right or below the search term
+
+  # ============================================================================
+  # SPECIAL FIELD TYPES (Reserved for future use)
+  # ============================================================================
+  # These types are defined in schema_loader.py but not yet implemented
+
+  # table_sum:
+  #   label: "Total from Equipment Table"
+  #   type: table_sum
+  #   search_terms:
+  #     - "Equipment List"
+  #   # Future: sum all values in a specific table column
+
+  # table_row:
+  #   label: "Equipment Details"
+  #   type: table_row
+  #   search_terms:
+  #     - "Heat Pump"
+  #   # Future: extract entire row as structured data
+
+  # ============================================================================
+  # EXAMPLES FOR DIFFERENT DOCUMENT TYPES
+  # ============================================================================
+
+  # UTILITY BILL EXAMPLE:
+  # account_number:
+  #   label: "Account Number"
+  #   type: text
+  #   search_terms: ["Account Number", "Account No"]
+  #   pattern: "\\d{10,12}"
+  #   page_range: [1, 1]
+
+  # INSPECTION REPORT EXAMPLE:
+  # inspector_name:
+  #   label: "Inspector Name"
+  #   type: text
+  #   search_terms: ["Inspector", "Inspected By"]
+  #   page_range: [1, 2]
+
+  # FINANCIAL STATEMENT EXAMPLE:
+  # net_income:
+  #   label: "Net Income"
+  #   type: number
+  #   search_terms: ["Net Income", "Net Profit"]
+  #   pattern: "\\$?[\\d,]+\\.?\\d*"
+
+  # ============================================================================
+  # BEST PRACTICES
+  # ============================================================================
+  #
+  # 1. SEARCH TERMS:
+  #    - Use exact labels from your document when possible
+  #    - Add 2-3 common variations (not 10+)
+  #    - Test with actual documents to find what works
+  #
+  # 2. PATTERNS:
+  #    - Use for validation, not primary extraction
+  #    - Keep patterns simple and flexible
+  #    - Test patterns with regex testers (regex101.com)
+  #
+  # 3. PAGE RANGES:
+  #    - Use when you know field location (improves speed)
+  #    - Use [1, 1] for header fields
+  #    - Omit if field location varies
+  #
+  # 4. FIELD TYPES:
+  #    - text: Free-form strings, IDs, names, addresses
+  #    - number: Integers, decimals, currency (auto-cleaned)
+  #    - date: Date values (returned as text, parse downstream)
+  #
+  # 5. FALLBACK TERMS:
+  #    - Use sparingly for true alternatives
+  #    - Don't use as a "catch-all" strategy
+  #
+  # 6. TESTING:
+  #    - Test each field individually with your documents
+  #    - Check extracted values in the JSON output
+  #    - Adjust search_terms based on actual results
+  #
+  # ============================================================================
