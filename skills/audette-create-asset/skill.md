@@ -21,13 +21,19 @@ multi-building complexes.
 
 ## Step 0: Index Available Files
 
-**Before anything else**, call `list_files` to see what documents are already uploaded to this asset.
+**Before anything else**, call `list_files` to get a summary of what's available.
 
-Show the user what you found:
+- If the result shows **many files** (100+), use `search_files` to find relevant documents rather than reading everything:
+  - `search_files("PCNA")` or `search_files("building condition")`
+  - `search_files("offering")` or `search_files("executive summary")`
+  - `search_files("lease")` or `search_files("rent roll")`
+  - `search_files("utility")` or `search_files("energy")`
+- If the result shows a **manageable list** (<50 files), scan the names directly.
+
+Show the user a brief summary:
 ```
-Found [N] file(s) in this asset:
-  • [filename1] ([type])
-  • [filename2] ([type])
+Found [N] file(s). Relevant documents detected:
+  • [filename] — likely [document type]
   ...
 ```
 
