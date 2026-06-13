@@ -6,7 +6,7 @@ description: >
   with no Audette property linked yet — creates or selects the property as part of the
   flow. Triggers on: "create asset in Audette", "onboard this property", "add all
   buildings for [property]", "set up [property name] in Audette".
-version: 1.1.0
+version: 1.2.0
 requires:
   - audette-mcp
 ---
@@ -19,15 +19,32 @@ multi-building complexes.
 
 ---
 
+## Step 0: Index Available Files
+
+**Before anything else**, call `list_files` to see what documents are already uploaded to this asset.
+
+Show the user what you found:
+```
+Found [N] file(s) in this asset:
+  • [filename1] ([type])
+  • [filename2] ([type])
+  ...
+```
+
+If no files are found, ask:
+> "No files are attached to this asset yet. Would you like to upload any documents (lease, PCNA, offering memo, utility bills) before I start? You can use the 📎 button in the chat composer. Once uploaded, just say 'continue' and I'll pick them up."
+
+If files exist, proceed. If the user wants to add more, wait for them to upload and say continue.
+
+---
+
 ## Step 1: Pre-flight
 
-Read `.audette-config.json` from the workspace root. If missing, stop:
-> "Run `workspace-setup` first to initialise the workspace."
+Call `list_customer_accounts`. Find the account to use:
+- If the user's asset has `audette_account_id` set in Soapbox settings, use that account.
+- Otherwise ask the user which account to use and show the list.
 
-Call `list_customer_accounts`. Switch to the account matching `audette_account.uid`:
-```
-switch_customer_account(customer_account_uid)
-```
+Call `switch_customer_account(customer_account_uid)`.
 
 ---
 
@@ -35,9 +52,8 @@ switch_customer_account(customer_account_uid)
 
 A property in Audette groups one or more buildings. Determine which to use:
 
-**Check `audette_property_id` (from asset settings or config):**
-- If `.audette-config.json` has `property.uid`, use it — skip to Step 3.
-- If the user's asset has `audette_property_id` set in Soapbox, use it — skip to Step 3.
+**Check `audette_property_id` (from asset settings):**
+- If the user's asset has `audette_property_id` set in Soapbox settings, use it — skip to Step 3.
 
 **No property linked yet — ask:**
 > "This asset isn't linked to an Audette property yet. Should I:
@@ -71,14 +87,16 @@ If using existing, collect its `building_model_uid`, assign it to the property (
 
 ## Step 4: Enumerate Buildings
 
-Determine how many distinct buildings exist at this property and extract per-building attributes from documents.
+Determine how many distinct buildings exist at this property and extract per-building attributes from the uploaded documents.
 
-**Sources to check:**
-- `.file-index.md` — look for site plan, PCNA/CNA, offering memo, or rent roll
-- Executive summary or physical description section
-- Site plan or survey
+**Sources to check (use `read_file` for each relevant document):**
+- Offering memorandum or executive summary — address, unit count, stories, year built
+- CNA/PCNA reports — construction type, floor area, building count
+- Rent rolls — address, unit count
+- Equipment surveys — HVAC types, LED coverage
+- Site plans if available
 
-**Single building:** most properties have one. Proceed with a single entry.  
+**Single building:** most properties have one. Proceed with a single entry.
 **Multiple buildings:** extract per-building attributes for each.
 
 For each building, extract:
@@ -147,31 +165,7 @@ On any failure: stop and ask the user to retry, skip, or cancel — do not proce
 
 ---
 
-## Step 7: Update Config
-
-After all buildings are created, update `.audette-config.json`:
-
-- Append each building to `buildings[]`:
-  ```json
-  {
-    "name": "<building_name>",
-    "building_model_uid": "<uid>",
-    "address": "<street_address>",
-    "city": "<city>",
-    "state": "<state_province>",
-    "archetype": "<archetype>",
-    "property_uid": "<property_uid or null>",
-    "property_name": "<property_name or null>"
-  }
-  ```
-- If a property was resolved, set `property.uid` and `property.name` at the top level.
-- Update `last_updated` to current ISO timestamp.
-
-Write the updated config back.
-
----
-
-## Step 8: Summary
+## Step 7: Summary
 
 ```
 [N] building(s) created[and assigned to "[property_name]"].
@@ -189,6 +183,9 @@ Next steps:
 
 ## Error Handling
 
+**No files found and user declines to upload**
+Proceed without documents — ask for each required field manually.
+
 **`create_building` fails**
 > "[building_name] failed: [error]. Retry, skip this building, or cancel remaining?"
 
@@ -196,7 +193,7 @@ Next steps:
 > "A building at this address already exists ([name], [uid]). Assign the existing building to this property instead? (yes / no)"
 
 **GFA missing**
-> "I couldn't find the gross floor area for [building_name]. Please provide it in sq ft, or run `osm-gfa-calculator` to estimate from the building footprint."
+> "I couldn't find the gross floor area for [building_name]. Please provide it in sq ft."
 
 **Property creation fails**
 > "Couldn't create property '[name]': [error]. Try a different name, link to an existing property, or skip property assignment?"
@@ -205,10 +202,11 @@ Next steps:
 
 ## Rules
 
-- Always call `switch_customer_account` before any other tool call
+- Always call `list_files` first — never assume the asset has no documents
+- Always call `switch_customer_account` before any Audette tool calls
 - Treat single-building properties identically to multi-building — no minimum required
 - Always confirm the full list before any `create_building` call
-- Call `assign_property_to_building` or `create_property_for_building` immediately after each successful creation — never batch
+- Call `assign_property_to_building` or `create_property_for_building` immediately after each successful creation
 - On any failure, stop and surface the error before continuing
 - `building_model_uid` is the only UID returned by `create_building`
 - Never fabricate GFA, floor count, or address — ask if missing
