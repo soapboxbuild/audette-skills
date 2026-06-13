@@ -1,24 +1,21 @@
 ---
 name: audette-create-asset
 description: >
-  Creates all buildings in Audette for a multi-building property/asset, assigning every
-  building to the same Audette property. Use when the user wants to onboard a property
-  that contains multiple buildings (e.g. a campus, complex, or portfolio entry with N
-  towers/phases). Triggers on: "create asset in Audette", "onboard this property",
-  "add all buildings for [property]", "set up [property name] in Audette". Requires
-  audette-mcp and the asset's audette_property_id to be set.
-version: 1.0.0
+  Creates all buildings in Audette for a property/asset and assigns them to an Audette
+  property. Handles single-building and multi-building properties. Works for new assets
+  with no Audette property linked yet — creates or selects the property as part of the
+  flow. Triggers on: "create asset in Audette", "onboard this property", "add all
+  buildings for [property]", "set up [property name] in Audette".
+version: 1.1.0
 requires:
   - audette-mcp
 ---
 
 # Audette Create Asset
 
-Create all buildings for a property in Audette and assign them to the property in one pass.
-
-**Use this skill when:** the asset has multiple buildings, or when you want to onboard
-a full property at once rather than building by building.  
-**Use `audette-create-building` instead when:** creating a single building interactively.
+Onboard a property into Audette — create its building(s) and assign them to a property.
+Works for new assets with no prior Audette linkage, single-building properties, and
+multi-building complexes.
 
 ---
 
@@ -29,110 +26,132 @@ Read `.audette-config.json` from the workspace root. If missing, stop:
 
 Call `list_customer_accounts`. Switch to the account matching `audette_account.uid`:
 ```
-call switch_customer_account(customer_account_uid)
+switch_customer_account(customer_account_uid)
 ```
 
 ---
 
 ## Step 2: Resolve the Property
 
-The property to use comes from the asset context. Check in this order:
+A property in Audette groups one or more buildings. Determine which to use:
 
-1. **`audette_property_id` in config** — if `.audette-config.json` has `property.uid`, use it.
-2. **User statement** — if the user named or pasted a property name, search `list_properties` for it.
-3. **Ask** if neither is available:
-   > "Which Audette property should these buildings be assigned to?"
-   Call `list_properties` and show the names.
+**Check `audette_property_id` (from asset settings or config):**
+- If `.audette-config.json` has `property.uid`, use it — skip to Step 3.
+- If the user's asset has `audette_property_id` set in Soapbox, use it — skip to Step 3.
 
-Once resolved, store `property_uid` and `property_name`. All buildings created in this run will be assigned to this property.
+**No property linked yet — ask:**
+> "This asset isn't linked to an Audette property yet. Should I:
+> 1. Create a new property named '[asset name]'
+> 2. Link to an existing property
+> 3. Skip property assignment for now"
+
+- **Create new:** confirm the property name (default = asset name), then call `create_property_for_building` after the first building is created (Step 6).
+- **Existing:** call `list_properties`, show names, let user pick. Store `property_uid`.
+- **Skip:** proceed without property assignment.
 
 ---
 
-## Step 3: Enumerate Buildings
+## Step 3: Duplicate Check
 
-Determine how many distinct buildings exist at this property and extract per-building attributes.
+Call `list_buildings`. Check whether any building at this property's address already exists.
 
-**Sources to check (in order):**
+If a match is found:
+```
+A building at this address already exists in Audette:
+  Name:      [name]
+  Model UID: [building_model_uid]
+  Archetype: [archetype]
+
+Use the existing building, or create a new one?
+```
+
+If using existing, collect its `building_model_uid`, assign it to the property (Step 6), update config (Step 7), and skip to Step 8.
+
+---
+
+## Step 4: Enumerate Buildings
+
+Determine how many distinct buildings exist at this property and extract per-building attributes from documents.
+
+**Sources to check:**
 - `.file-index.md` — look for site plan, PCNA/CNA, offering memo, or rent roll
-- Property documents — executive summary or physical description section
-- Site plan or survey if available
+- Executive summary or physical description section
+- Site plan or survey
 
-**For each building, extract:**
+**Single building:** most properties have one. Proceed with a single entry.  
+**Multiple buildings:** extract per-building attributes for each.
+
+For each building, extract:
 
 | Field | Required | Notes |
 |-------|----------|-------|
-| `street_address` | Yes | Use property address for all; add unit/bldg suffix if multiple on same parcel |
+| `street_address` | Yes | Property address; add bldg suffix only if multiple on same parcel |
 | `city`, `state_province`, `postal_zip_code`, `country` | Yes | Same for all buildings in same complex |
-| `building_archetype` | Yes | See `references/archetypes.md`; usually same across buildings |
-| `floors_above_grade` | Yes | Per building — may differ (e.g. Tower A = 12F, Tower B = 8F) |
+| `building_archetype` | Yes | See `references/archetypes.md` |
+| `floors_above_grade` | Yes | Per building — may differ across towers |
 | `gross_floor_area_square_feet` | Yes | Per building |
-| `building_name` | Recommended | Use `property_name + " — Bldg A"` / `"Tower 1"` / phase label if no explicit name |
-| `year_built_original` | No | Per building if phased development |
+| `building_name` | Recommended | See naming convention below |
+| `year_built_original` | No | Per building if phased |
 
-**Naming convention when no explicit names exist:**
+**Naming convention:**
 ```
-Single building:       use property_name directly
-Two buildings:         "[property] — Building A", "[property] — Building B"
-Numbered towers:       "[property] — Tower 1", "[property] — Tower 2"
-Phased:                "[property] — Phase I", "[property] — Phase II"
+1 building:    use property/asset name directly
+2 buildings:   "[property] — Building A", "[property] — Building B"
+N towers:      "[property] — Tower 1", "[property] — Tower 2", …
+Phased:        "[property] — Phase I", "[property] — Phase II", …
 ```
 
-**If building count is unclear**, ask:
+If building count is unclear, ask:
 > "How many buildings does [property name] have? I can see [N] from the documents."
 
 ---
 
-## Step 4: Confirm All Buildings
+## Step 5: Confirm All Buildings
 
 Present the full list before creating anything:
 
 ```
-Ready to create [N] building(s) in Audette for property "[property_name]":
+Ready to create [N] building(s) in Audette:
 
   1. [building_name]
-     [address] · [archetype] · [GFA] sq ft · [floors]F · built [year or "unknown"]
+     [address] · [archetype] · [GFA] sq ft · [floors]F[· built [year]]
 
-  2. [building_name]
-     [address] · [archetype] · [GFA] sq ft · [floors]F · built [year or "unknown"]
+  2. [building_name]  ← only shown if N > 1
+     ...
 
-  ...
-
-All will be assigned to property: [property_name] ([property_uid])
+Property: [property_name] (will be [created / assigned to existing / skipped])
 
 Proceed? (yes / edit / cancel)
 ```
 
-If "edit", ask which building and which field to correct. Re-present after edits.
+If "edit", ask which building and field. Re-present after changes.
 
 ---
 
-## Step 5: Create Buildings (One by One)
+## Step 6: Create Buildings
 
 For each building in the confirmed list:
 
-1. Call `create_building` with the extracted fields. Pass `null` for any optional field not determined.
-2. Capture `building_model_uid` from the response — this is the only UID returned.
-3. Immediately call `assign_property_to_building`:
+1. Call `create_building` with the extracted fields (`null` for any undetermined optional field).
+2. Capture `building_model_uid` — the only UID returned.
+3. **Property assignment:**
+   - If `property_uid` is known: call `assign_property_to_building(property_uid, [building_model_uid])`
+   - If creating a new property and this is the **first** building: call `create_property_for_building(property_name, [building_model_uid])`. Capture the returned `property_uid` for subsequent buildings.
+   - If skipping: no assignment call.
+4. Confirm before moving on:
    ```
-   assign_property_to_building(
-     property_uid = <property_uid>,
-     building_model_uids = [<building_model_uid>]
-   )
-   ```
-4. Confirm assignment before moving to the next building:
-   ```
-   ✓ [building_name] created and assigned to [property_name]
+   ✓ [building_name] created[and assigned to [property_name]]
    ```
 
-If any `create_building` call fails, stop and report the error — do not proceed to the next building until the user decides whether to retry, skip, or cancel.
+On any failure: stop and ask the user to retry, skip, or cancel — do not proceed automatically.
 
 ---
 
-## Step 6: Update Config
+## Step 7: Update Config
 
 After all buildings are created, update `.audette-config.json`:
 
-- For each created building, append to `buildings[]`:
+- Append each building to `buildings[]`:
   ```json
   {
     "name": "<building_name>",
@@ -141,29 +160,28 @@ After all buildings are created, update `.audette-config.json`:
     "city": "<city>",
     "state": "<state_province>",
     "archetype": "<archetype>",
-    "property_uid": "<property_uid>",
-    "property_name": "<property_name>"
+    "property_uid": "<property_uid or null>",
+    "property_name": "<property_name or null>"
   }
   ```
-- Set `property.uid` and `property.name` at the top level if not already set.
+- If a property was resolved, set `property.uid` and `property.name` at the top level.
 - Update `last_updated` to current ISO timestamp.
 
 Write the updated config back.
 
 ---
 
-## Step 7: Summary
+## Step 8: Summary
 
 ```
-[N] building(s) created and assigned to "[property_name]".
+[N] building(s) created[and assigned to "[property_name]"].
 
   [building_name_1]  —  [building_model_uid_1]
-  [building_name_2]  —  [building_model_uid_2]
-  ...
+  [building_name_2]  —  [building_model_uid_2]  ← only if N > 1
 
 Next steps:
-  • Equipment survey   → audette-equipment-survey  (for each building)
-  • Energy data        → audette-energy-data        (for each building)
+  • Equipment survey   → audette-equipment-survey
+  • Energy data        → audette-energy-data
   • Full report        → report
 ```
 
@@ -171,26 +189,26 @@ Next steps:
 
 ## Error Handling
 
-**`audette_property_id` not set on this asset**
-> "This asset has no Audette property linked. Go to asset Settings → Audette to select the property, then re-run this skill."
+**`create_building` fails**
+> "[building_name] failed: [error]. Retry, skip this building, or cancel remaining?"
 
-**`create_building` fails for one building**
-> "Building [N] ([name]) failed: [error message]. Would you like to retry, skip it, or cancel the remaining buildings?"
+**Duplicate detected**
+> "A building at this address already exists ([name], [uid]). Assign the existing building to this property instead? (yes / no)"
 
-**Duplicate building detected (address already in Audette)**
-> "A building at this address already exists in Audette ([existing_name], uid [uid]). Skip creation and assign the existing building instead? (yes / no)"
-If yes: call `assign_property_to_building` with the existing `building_model_uid` and continue.
+**GFA missing**
+> "I couldn't find the gross floor area for [building_name]. Please provide it in sq ft, or run `osm-gfa-calculator` to estimate from the building footprint."
 
-**GFA missing or undocumented**
-> "I could not find the gross floor area for [building_name]. Please provide it (in sq ft) or run the `osm-gfa-calculator` skill to estimate it from the building footprint."
+**Property creation fails**
+> "Couldn't create property '[name]': [error]. Try a different name, link to an existing property, or skip property assignment?"
 
 ---
 
 ## Rules
 
-- Always call `switch_customer_account` before any tool calls
-- Always confirm the full building list before creating anything
-- Always call `assign_property_to_building` immediately after each successful `create_building` — do not batch
-- Never fabricate GFA, floor count, or address
-- On any creation failure, stop and ask the user before continuing
-- `building_model_uid` is the only UID returned by `create_building` — there is no `building_uid`
+- Always call `switch_customer_account` before any other tool call
+- Treat single-building properties identically to multi-building — no minimum required
+- Always confirm the full list before any `create_building` call
+- Call `assign_property_to_building` or `create_property_for_building` immediately after each successful creation — never batch
+- On any failure, stop and surface the error before continuing
+- `building_model_uid` is the only UID returned by `create_building`
+- Never fabricate GFA, floor count, or address — ask if missing
