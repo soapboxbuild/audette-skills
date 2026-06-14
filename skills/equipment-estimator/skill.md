@@ -105,7 +105,7 @@ Extract `audette_account.uid` for use in Audette MCP calls.
 
 ### Verify Audette Account
 
-Call `list_customer_accounts` to verify account exists:
+Call `list_customer_accounts` (page: 1, per_page: 100; paginate if fewer than per_page returned) to verify account exists:
 
 ```
 list_customer_accounts()

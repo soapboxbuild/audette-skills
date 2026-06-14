@@ -76,7 +76,7 @@ the file index is.
 
 ### Step 1: Verify Audette MCP
 
-Call `list_customer_accounts` from the Audette MCP. If it fails, stop:
+Call `list_customer_accounts` from the Audette MCP (pass `page: 1, per_page: 100` — repeat with increasing page numbers until you get fewer results than per_page to ensure all accounts are loaded). If it fails, stop:
 
 > The Audette MCP is required but not connected. Please add it to your MCP config and restart.
 
@@ -115,7 +115,7 @@ If skipped, set `customer.logo_path` to `null`.
 
 ### Step 6: Audette Account
 
-Call `list_customer_accounts`. Present the list and ask the user to select one.
+Call `list_customer_accounts` (page: 1, per_page: 100; paginate if needed until all accounts are loaded). Present the complete list and ask the user to select one.
 
 If the intended account isn't listed, set `audette_account.uid` to `"PENDING"` and note that the account must be created in Audette first.
 

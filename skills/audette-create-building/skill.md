@@ -24,7 +24,7 @@ Extract property details from documents and create a building in the Audette pla
 
 Read `.audette-config.json` from the workspace root. If missing, stop and tell the user to run `workspace-setup` first.
 
-Call `list_customer_accounts`. Find the account matching `audette_account.uid` from config. If not found, warn the user and list available accounts before proceeding.
+Call `list_customer_accounts` (page: 1, per_page: 100; paginate until all pages loaded). Find the account matching `audette_account.uid` from config. If not found, warn the user and list available accounts before proceeding.
 
 Call `switch_customer_account` with the correct `customer_account_uid`. All subsequent tool calls operate in this account's context.
 
