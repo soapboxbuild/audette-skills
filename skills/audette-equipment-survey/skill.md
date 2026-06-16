@@ -48,8 +48,13 @@ If this is a first submission, continue with full extraction.
 
 ## Step 3: Extract Equipment Data
 
-Read source documents. Consult `references/equipment-schema.md` for the full field list and
-`references/terminology-map.md` to translate document language into Audette enum values.
+Read source documents. Consult:
+- `references/equipment-schema.md` — full field list and valid enum values
+- `references/terminology-map.md` — translate document language into Audette enum values
+- `references/audette-topology.md` — **how each equipment type drives the energy model** (multipliers, fuel resolution, rooftop detection mapping, common pitfalls)
+
+**Determine primary heating fuel first** (topology doc Section 1) — it affects every
+downstream calculation. Use the fuel resolution priority rule before proceeding to other sections.
 
 ### Document priority
 
