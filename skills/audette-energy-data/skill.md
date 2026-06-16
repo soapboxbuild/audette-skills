@@ -201,11 +201,13 @@ For each qualifying row:
 | `Consumption` | `energy_consumption` | already normalised |
 | `Unit` (`kWh` or `GJ`) | `energy_consumption_unit` | lowercase: `kwh` or `gj` |
 | `Currency` | `currency` | `USD` or `CAD` |
-| `Cost` | `utility_cost` | optional |
+| `Cost` | `utility_cost` | **always pass `0` if unknown — never `null`/`None`** (see note below) |
 | `Account number` | `account_number` | optional |
 | `Supplier` | `utility_provider` | optional |
 
 Call `add_building_utility_data` with `building_model_uid` and the full `utility_data` array in a single call.
+
+**⚠️ `utility_cost` must always be a number — never `null` or omitted.** Pass `0` when cost is unknown or estimated. Passing `null` causes the calibration service (SMR) to throw `AutoCalibratorError: Unexpected <class 'TypeError'>: cannot unpack non-iterable NoneType object` during re-modelling.
 
 The MCP server validates independently and triggers re-modelling on success.
 
