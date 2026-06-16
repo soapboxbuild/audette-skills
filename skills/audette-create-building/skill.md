@@ -22,11 +22,13 @@ Extract property details from documents and create a building in the Audette pla
 
 ## Step 1: Pre-flight
 
-Read `.audette-config.json` from the workspace root. If missing, stop and tell the user to run `workspace-setup` first.
+**Determine the correct Audette account UID:**
 
-Call `list_customer_accounts` (page: 1, per_page: 100; paginate until all pages loaded). Find the account matching `audette_account.uid` from config. If not found, warn the user and list available accounts before proceeding.
+- **Soapbox platform:** The account UID is provided in the system prompt as `Audette customer account UID`. Use it directly — do NOT read `.audette-config.json` or run bash. Proceed to `switch_customer_account` immediately.
+- **Claude Code workspace:** Read `.audette-config.json` from the workspace root. If missing, stop and tell the user to run `workspace-setup` first. Use `audette_account.uid` from the config.
+- **Fallback:** If neither source provides a UID, call `list_customer_accounts` (page: 1, per_page: 100) and ask the user to select the correct account.
 
-Call `switch_customer_account` with the correct `customer_account_uid`. All subsequent tool calls operate in this account's context.
+**Always call `switch_customer_account` with the correct `customer_account_uid` before any other Audette tool call.** This ensures the correct account context regardless of what was active previously. All subsequent tool calls operate in this account's context.
 
 ---
 
