@@ -1,7 +1,7 @@
 ---
 name: report
 description: >
-  Generate professional building performance reports as interactive HTML artifacts.
+  [DEPRECATED — use soapbox-report instead] Generate professional building performance reports as interactive HTML artifacts.
   Iterates with the user until the output is approved, then saves the result as an
   example for future reports. Supports decarbonization roadmaps, BPS compliance
   summaries, acquisition due diligence, and portfolio summaries. Triggers on:
@@ -10,6 +10,25 @@ description: >
 version: 1.0.0
 requires:
   - audette-mcp
+---
+
+## Deprecated
+
+This skill has been superseded by the centralized `soapbox-report` plugin and its `report-renderer` subagent. Use that instead for all new report generation.
+
+Replacement template names in `soapbox-report`:
+
+| Report Type | Template Name |
+|---|---|
+| Decarbonization roadmap / retrofit plan | `retrofit-plan` |
+| BPS compliance summary | `bps-compliance` |
+| Acquisition due diligence / RSRA | `rsra` |
+| Portfolio summary / Scope 3 inventory | `portfolio-summary` |
+| GRESB submission | `gresb-submission` |
+| TCFD / climate disclosure | `crrem-assessment` |
+
+To dispatch via `soapbox-report`, pass `{ "template": "<name>", "data": { ... } }` to the `report-renderer` subagent.
+
 ---
 
 # Audette Report Generator
