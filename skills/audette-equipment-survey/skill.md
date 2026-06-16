@@ -52,6 +52,7 @@ Read source documents. Consult:
 - `references/equipment-schema.md` — full field list and valid enum values
 - `references/terminology-map.md` — translate document language into Audette enum values
 - `references/audette-topology.md` — **how each equipment type drives the energy model** (multipliers, fuel resolution, rooftop detection mapping, common pitfalls)
+- `references/submission-guide.md` — **exact call format, complete payload template, all 15 API validation rules, valid system combinations, error handling** — read this before Step 5
 
 **Determine primary heating fuel first** (topology doc Section 1) — it affects every
 downstream calculation. Use the fuel resolution priority rule before proceeding to other sections.
@@ -154,6 +155,21 @@ domestic_hot_water    | central_distribution         | true               | PCNA
 Ask the user to confirm or correct before proceeding. For ambiguous fields, ask directly rather than making a silent choice.
 
 ---
+
+## Step 4b: Pre-validate Against API Rules
+
+Before submitting, verify the payload does not violate the 15 API validation rules
+listed in `references/submission-guide.md`. Key checks:
+
+1. `domestic_hot_water_heater_exists` must be `true` — API always requires DHW
+2. `central_plant_cooler` and `terminal_cooler` are mutually exclusive — pick one
+3. `central_plant_heater` and `terminal_heater` are mutually exclusive — pick one
+4. At least one of `air_handling_equipment_exists` or `rooftop_unit_exists` must be `true`
+5. If `rooftop_unit_exists = true`, `rooftop_unit_cooling_type` must be provided
+6. If `heat_pump_type = "water_loop_heat_pump"`, a boiler must exist (Rule 13) and no chiller (Rule 14)
+7. Furnace types conflict with: unit heaters, baseboards, central cooling, most AHU types (Rules 9–12)
+
+Flag any conflicts in the confirmation table and ask the user to resolve before submitting.
 
 ## Step 5: Submit
 
