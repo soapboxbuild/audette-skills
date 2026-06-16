@@ -42,20 +42,18 @@ using natural language Q&A until all required fields are complete.
 
 ---
 
-## Step 1: Read Project Config and Identify Building
+## Pre-flight
 
-Read `.audette-config.json` from the workspace root. Extract `audette_account.name` and
-`audette_account.uid`. If the file is missing, ask the user to run `workspace-setup` first.
+Call `switch_customer_account` with the Audette customer account UID from the system prompt.
+This is required before any Audette write operations — omitting it causes HTTP 401.
 
-Call `switch_customer_account` with `audette_account.uid` before any Audette tool calls.
+If no account UID is in the system prompt, call `list_customer_accounts` and ask the user to select one.
 
-Ask which building to complete the survey for if not clear from context. You need the
-**building_model_uid** from:
-- The workspace config's `buildings[]` array
-- A previous conversation reference
-- The user telling you directly
+## Step 1: Identify Building
 
-Verify it exists by calling `get_building_model_details`.
+The building UID is in the system prompt if this asset has been linked to Audette.
+If not, call `list_buildings` to find it by name or address, or ask the user directly.
+You need the **building_model_uid** — verify it exists by calling `get_building_model_details`.
 
 ---
 

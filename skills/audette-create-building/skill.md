@@ -20,15 +20,14 @@ Extract property details from documents and create a building in the Audette pla
 
 ---
 
-## Step 1: Pre-flight
+## Pre-flight
 
-**Determine the correct Audette account UID:**
+Call `switch_customer_account` with the Audette customer account UID from the system prompt.
+This is required before any Audette write operations — omitting it causes HTTP 401.
 
-- **Soapbox platform:** The account UID is provided in the system prompt as `Audette customer account UID`. Use it directly — do NOT read `.audette-config.json` or run bash. Proceed to `switch_customer_account` immediately.
-- **Claude Code workspace:** Read `.audette-config.json` from the workspace root. If missing, stop and tell the user to run `workspace-setup` first. Use `audette_account.uid` from the config.
-- **Fallback:** If neither source provides a UID, call `list_customer_accounts` (page: 1, per_page: 100) and ask the user to select the correct account.
+If no account UID is in the system prompt, call `list_customer_accounts` (page: 1, per_page: 100) and ask the user to select the correct account.
 
-**Always call `switch_customer_account` with the correct `customer_account_uid` before any other Audette tool call.** This ensures the correct account context regardless of what was active previously. All subsequent tool calls operate in this account's context.
+All subsequent tool calls operate in this account's context.
 
 ---
 
@@ -47,7 +46,7 @@ A building at this address already exists in Audette:
 Use the existing model, or create a new one?
 ```
 
-If the user wants the existing model, save its `building_model_uid` to config (Step 10) and skip to Step 8. Otherwise continue.
+If the user wants the existing model, note its `building_model_uid` and skip to Step 8. Otherwise continue.
 
 ---
 
@@ -242,19 +241,7 @@ Note: this is a quick orientation, not a full compliance review. The full analys
 
 ---
 
-## Step 11: Update Config
-
-Add the new building to `.audette-config.json`:
-
-- Append to `buildings[]`: `name`, `building_model_uid`, `address`, `city`, `state`, `archetype`
-- If assigned to a property, also store `property_uid`
-- Update `last_updated` to current ISO timestamp
-
-Write the updated config back.
-
----
-
-## Step 12: Confirmation
+## Step 11: Confirmation
 
 ```
 Building created.
@@ -279,8 +266,8 @@ Next steps:
 **Audette MCP not connected**
 > The Audette MCP is required. Please reconnect it and try again.
 
-**Account not found in config**
-> The account in your workspace config was not found. Available accounts: [list]. Run `workspace-setup` to update the config.
+**Account UID not found**
+> The account UID from the system prompt was not found. Available accounts: [list].
 
 **Required field missing from documents**
 > Unable to extract [field] from the documents provided. Please provide it directly.
@@ -306,5 +293,4 @@ or floor count assumption is off. Which should I use?
 - Always confirm all inputs with the user before calling `create_building`
 - Always call `edit_building_attributes` for leasing structure if the user engages — this is load-bearing for financial accuracy
 - Always run `run_compliance_analysis` after creation
-- Always update config after creation
 - `building_model_uid` is the only UID returned — there is no `building_uid`

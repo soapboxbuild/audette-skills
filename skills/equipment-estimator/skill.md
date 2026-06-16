@@ -30,9 +30,14 @@ Predict building equipment configurations using portfolio intelligence, aerial i
 
 ---
 
-## Step 1: Prerequisites Check
+## Pre-flight
 
-Call `switch_customer_account` with the account UID from `.audette-config.json` before any Audette tool calls.
+Call `switch_customer_account` with the Audette customer account UID from the system prompt.
+This is required before any Audette write operations — omitting it causes HTTP 401.
+
+If no account UID is in the system prompt, call `list_customer_accounts` and ask the user to select one.
+
+## Step 1: Prerequisites Check
 
 Verify required dependencies before proceeding.
 
@@ -76,54 +81,6 @@ See: https://github.com/microsoft/playwright-mcp
 ```
 
 **Stop execution** if Playwright MCP not available.
-
-### Read Project Configuration
-
-Read `.audette-config.json` from workspace root:
-
-```json
-{
-  "project_name": "...",
-  "audette_account": {
-    "name": "...",
-    "uid": "..."
-  },
-  "buildings": [...]
-}
-```
-
-If file missing:
-```
-❌ No .audette-config.json found.
-
-Please run workspace-setup skill first to configure Audette account.
-```
-
-**Stop execution** if config missing.
-
-Extract `audette_account.uid` for use in Audette MCP calls.
-
-### Verify Audette Account
-
-Call `list_customer_accounts` (page: 1, per_page: 100; paginate if fewer than per_page returned) to verify account exists:
-
-```
-list_customer_accounts()
-```
-
-Check if `audette_account.uid` from config exists in returned list.
-
-If not found:
-```
-⚠️  Account UID from config not found in Audette.
-
-Configured: {uid}
-Available accounts: {list}
-
-Proceed anyway? (May fail later)
-```
-
-Ask the user whether to proceed despite the account mismatch. If user declines, stop execution.
 
 ### Load Portfolio Buildings
 
@@ -1242,29 +1199,6 @@ For each submitted survey, save metadata alongside:
 
 Save to: `equipment-estimates/{building_name}-metadata.json`
 
-### Update Project Config (Optional)
-
-Add estimation tracking to `.audette-config.json`:
-
-```json
-{
-  "project_name": "...",
-  "audette_account": {...},
-  "buildings": [...],
-  "equipment_estimations": [
-    {
-      "building_uid": "abc-123",
-      "estimated_at": "2026-05-20",
-      "submitted": true,
-      "confidence": "high",
-      "archetype_source": "data_driven"
-    }
-  ]
-}
-```
-
-This helps track which buildings have estimated vs. surveyed equipment.
-
 ---
 
 ## Step 9: Post-Submission Summary
@@ -1402,7 +1336,6 @@ Skill continues gracefully if:
 Skill stops if:
 - Audette MCP not connected
 - Playwright MCP not installed
-- No .audette-config.json
 - No buildings in portfolio
 
 ### Performance

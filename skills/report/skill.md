@@ -47,15 +47,14 @@ New types can be added by dropping a folder with a `manifest.md` — no skill ch
 
 ---
 
-## Step 1: Pre-flight
+## Pre-flight
 
-Read `.audette-config.json`. If missing, tell the user to run `workspace-setup` first.
+Call `switch_customer_account` with the Audette customer account UID from the system prompt.
+This is required before any Audette write operations — omitting it causes HTTP 401.
 
-Call `switch_customer_account` with `audette_account.uid`.
+If no account UID is in the system prompt, call `list_customer_accounts` and ask the user to select one.
 
----
-
-## Step 2: Classify Report Type
+## Step 1: Classify Report Type
 
 If the type is not clear from context, ask:
 
@@ -65,7 +64,7 @@ If the type is not clear from context, ask:
 > 3. Acquisition Due Diligence — building assessment for property acquisition
 > 4. Portfolio Summary — overview of multiple buildings"
 
-For building-level reports, identify the target building from `buildings[]` or ask.
+For building-level reports, identify the target building from the system prompt (`Audette building UID`) or call `list_buildings` to find it by name or address.
 
 ---
 

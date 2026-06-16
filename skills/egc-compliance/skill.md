@@ -41,8 +41,7 @@ Do NOT use this skill for:
 - **Report Factory MCP** — Optional, for generating compliance reports from results
 
 ### Required Workspace Setup
-- `.audette-config.json` in project root with building UIDs cached
-- Project must have at least one building created in Audette
+- At least one building created in Audette (building UID from system prompt or `list_buildings`)
 
 ## Model Calibration Requirements
 
@@ -94,7 +93,15 @@ See detailed calibration procedures in the workflow section below.
 
 ## Workflow
 
-### Step 1: Intent Detection and Building Resolution
+### Step 1: Pre-flight and Building Resolution
+
+Call `switch_customer_account` with the Audette customer account UID from the system prompt.
+This is required before any Audette write operations — omitting it causes HTTP 401.
+
+If no account UID is in the system prompt, call `list_customer_accounts` and ask the user to select one.
+
+The building UID is in the system prompt if this asset has been linked to Audette.
+If not, call `list_buildings` to find it by name or address.
 
 When the user requests energy code compliance analysis, parse their natural language input to identify the target building. Common phrases:
 - "Run energy compliance for [building name]"
@@ -104,24 +111,15 @@ When the user requests energy code compliance analysis, parse their natural lang
 
 **Resolution process:**
 
-1. **Read workspace config**: Load `.audette-config.json` from the project root to get cached building list:
-   ```python
-   import json
-   from pathlib import Path
-   
-   config_path = Path.cwd() / '.audette-config.json'
-   config = json.load(open(config_path))
-   buildings = config.get('buildings', [])
-   ```
+1. **Check system prompt**: Use the `Audette building UID` from the system prompt if available.
 
-2. **Match user input**: Compare the user's input against building names, addresses, or UIDs in the cached list. Match flexibly (partial strings, address fragments, etc.).
+2. **Call list_buildings**: If no UID in system prompt, call `list_buildings` and match the user's input against building names or addresses. Match flexibly (partial strings, address fragments, etc.).
 
 3. **Handle ambiguity**:
    - If **multiple matches** found: Present options to user and ask them to choose
-   - If **no matches** found: Check if config exists but is empty, then offer to run `audette-create-building` skill
-   - If **config missing**: Tell user to run `workspace-setup` skill first
+   - If **no matches** found: Offer to run `audette-create-building` skill
 
-4. **Extract building UID**: Once resolved, extract the `building_uid` (or `building_model_uid`, used interchangeably) for data collection.
+4. **Extract building UID**: Once resolved, use the `building_uid` (or `building_model_uid`, used interchangeably) for data collection.
 
 **Example conversational flow:**
 > User: "Run energy compliance for 123 Main Street"

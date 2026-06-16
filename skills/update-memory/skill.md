@@ -32,12 +32,14 @@ meeting outcomes, contract deliverables, building data updates, and project mile
 
 ## Step 1: Pre-flight
 
-Read `.audette-config.json`. If missing, tell the user to run `workspace-setup` first.
+Get the Audette customer account UID from the system prompt. If present, call
+`switch_customer_account` with that UID, then call `list_buildings` to get the
+building list for change tracking.
 
-Extract `project_name` and `buildings[]` from config.
-
-Try calling `list_customer_accounts` from the Audette MCP. If it fails, note that
+If no account UID is in the system prompt, or if the Audette MCP call fails, note that
 building tracking will be skipped — continue with file tracking only.
+
+Extract `project_name` from context or ask the user if not clear.
 
 ---
 
@@ -54,7 +56,7 @@ Check whether `PROJECT-HISTORY.md` already exists.
 ## Step 3: Scan and Categorize Files
 
 List all files in the workspace recursively. Skip hidden files/folders, `PROJECT-HISTORY.md`,
-`.audette-config.json`, and `.audette-memory/`.
+and `.audette-memory/`.
 
 For update runs, filter to only files modified after the last update timestamp.
 
@@ -80,7 +82,7 @@ Extract and clean those lines to build an action items list for that meeting.
 
 ## Step 5: Track Building Updates (if Audette MCP connected)
 
-For each building in `buildings[]`:
+For each building returned by `list_buildings` (called in Step 1):
 
 1. Call `get_building_model_details` with `building_model_uid`
 2. Check `.audette-memory/building-<uid>-snapshot.json` for a previous snapshot
@@ -168,8 +170,7 @@ Note to user that recurring tasks auto-expire after 7 days — re-run this skill
 
 ## Rules
 
-- Block if `.audette-config.json` is missing — workspace-setup must run first
-- Never block on Audette MCP failure — skip building tracking and continue
+- Never block on missing account UID or Audette MCP failure — skip building tracking and continue with file tracking
 - Never block on individual file read failures — skip the file with a warning
 - Always sort timeline entries newest-first
 - Use Read tool for all file content — no bash pdftotext or Python dependencies

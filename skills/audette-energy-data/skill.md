@@ -21,19 +21,17 @@ Extract utility bill data from PDFs and Excel files, validate 12-month coverage,
 
 ---
 
-## Step 1: Pre-flight + Identify the Building
+## Pre-flight
 
-**Determine the correct Audette account UID and switch to it immediately:**
+Call `switch_customer_account` with the Audette customer account UID from the system prompt.
+This is required before any Audette write operations — omitting it causes HTTP 401.
 
-- **Soapbox platform:** The account UID is in the system prompt as `Audette customer account UID`. Use it directly — do NOT read `.audette-config.json`.
-- **Claude Code workspace:** Read `.audette-config.json`. If missing, tell the user to run `workspace-setup` first. Use `audette_account.uid` from config.
-- **Fallback:** Call `list_customer_accounts` and ask the user to select.
+If no account UID is in the system prompt, call `list_customer_accounts` and ask the user to select one.
 
-**Call `switch_customer_account` with the correct UID before any other Audette call.**
-This is required for all write operations — skipping it causes HTTP 401 on submission even
-if reads (list_buildings, get_building_utility_data) appear to work.
+## Step 1: Identify the Building
 
-Identify the target building from `buildings[]` by name or ask:
+The building UID is in the system prompt if this asset has been linked to Audette.
+If not, call `list_buildings` to find it by name or address, or ask:
 > "Which building is this utility data for?"
 
 Note the `building_model_uid` — it's required for submission.
