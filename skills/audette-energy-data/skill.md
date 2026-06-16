@@ -256,3 +256,4 @@ Next steps:
 - Always save a local CSV regardless of submission outcome — it is the audit trail
 - `oil` and `water` records go into the CSV but are silently excluded from the MCP payload
 - The MCP validates on its own — if it rejects, report the error verbatim
+- **`utility_cost` must always be a number — never `null` or omitted.** Pass `0` when cost is unknown or when submitting estimates. Passing `null` causes `AutoCalibratorError: cannot unpack non-iterable NoneType object` during re-modelling.
