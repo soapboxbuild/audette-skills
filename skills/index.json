@@ -1,0 +1,104 @@
+{
+  "skills": [
+    {
+      "name": "audette-create-asset",
+      "path": "audette-create-asset/skill.md",
+      "description": "Creates a new asset record in the Soapbox platform"
+    },
+    {
+      "name": "audette-create-building",
+      "path": "audette-create-building/skill.md",
+      "description": "Creates a new building in the Audette platform by extracting property details from documents"
+    },
+    {
+      "name": "audette-energy-data",
+      "path": "audette-energy-data/skill.md",
+      "description": "Extracts utility bill data from PDFs/Excel files and submits to Audette"
+    },
+    {
+      "name": "audette-equipment-survey",
+      "path": "audette-equipment-survey/skill.md",
+      "description": "Extracts building equipment data from documents and submits a structured equipment survey to Audette"
+    },
+    {
+      "name": "audette-onboarding",
+      "path": "audette-onboarding/SKILL.md",
+      "description": "Full Audette onboarding workflow for a Soapbox asset with no Audette building yet — creates buildings from footprints, links property, patches asset, submits utility or equipment data"
+    },
+    {
+      "name": "audette-setup",
+      "path": "audette-setup/skill.md",
+      "description": "Interactive setup and demonstration that tests all Audette Orchestrator functionality"
+    },
+    {
+      "name": "egc-compliance",
+      "path": "egc-compliance/skill.md",
+      "description": "Analyzes building compliance with emissions and energy regulations"
+    },
+    {
+      "name": "egc-compliance-v2",
+      "path": "egc-compliance-v2/skill.md",
+      "description": "Analyzes building compliance with emissions and energy regulations (v2)"
+    },
+    {
+      "name": "equipment-estimator",
+      "path": "equipment-estimator/skill.md",
+      "description": "Estimates building equipment details from property type, vintage, and climate zone"
+    },
+    {
+      "name": "equipment-gap-questionnaire",
+      "path": "equipment-gap-questionnaire/skill.md",
+      "description": "Generates a targeted questionnaire for missing equipment fields"
+    },
+    {
+      "name": "file-index",
+      "path": "file-index/skill.md",
+      "description": "Indexes project documents to a .file-index.md for fast lookup"
+    },
+    {
+      "name": "kml-generator",
+      "path": "kml-generator/skill.md",
+      "description": "Generates KML files from building footprint or geospatial data"
+    },
+    {
+      "name": "osm-gfa-calculator",
+      "path": "osm-gfa-calculator/skill.md",
+      "description": "Calculates gross floor area per building using OpenStreetMap footprint data"
+    },
+    {
+      "name": "pdf-extract",
+      "path": "pdf-extract/skill.md",
+      "description": "Extracts structured data from PDF documents"
+    },
+    {
+      "name": "report",
+      "path": "report/skill.md",
+      "description": "Generates a full Audette decarbonization report for a building"
+    },
+    {
+      "name": "report-template-generator",
+      "path": "report-template-generator/skill.md",
+      "description": "Generates report templates for Audette decarbonization reports"
+    },
+    {
+      "name": "system-details",
+      "path": "system-details/skill.md",
+      "description": "Displays system and environment details for debugging"
+    },
+    {
+      "name": "update-memory",
+      "path": "update-memory/skill.md",
+      "description": "Updates persistent memory with new learnings from the current session"
+    },
+    {
+      "name": "workspace-rag",
+      "path": "workspace-rag/skill.md",
+      "description": "Runs retrieval-augmented generation queries over the workspace document index"
+    },
+    {
+      "name": "workspace-setup",
+      "path": "workspace-setup/skill.md",
+      "description": "Sets up a new Audette workspace folder with config and document structure"
+    }
+  ]
+}
