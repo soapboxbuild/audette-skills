@@ -1,187 +1,136 @@
 ---
 name: report
 description: >
-  [DEPRECATED — use soapbox-report instead] Generate professional building performance reports as interactive HTML artifacts.
-  Iterates with the user until the output is approved, then saves the result as an
-  example for future reports. Supports decarbonization roadmaps, BPS compliance
-  summaries, acquisition due diligence, and portfolio summaries. Triggers on:
-  "generate a report", "create a roadmap", "show me the compliance status",
-  "prepare a DD summary", "build a portfolio overview".
-version: 1.0.0
+  Generate professional building performance reports as self-contained HTML artifacts.
+  Agent gathers data from Audette MCP, writes a complete HTML report inline with CSS
+  and system fonts (no external dependencies), presents it as an artifact, iterates
+  until approved, then saves via save_file. Supports decarbonization roadmaps, BPS
+  compliance summaries, acquisition due diligence (RSRA), and portfolio summaries.
+  Triggers on: "generate a report", "create a roadmap", "show me the compliance status",
+  "prepare a DD summary", "build a portfolio overview", "export to PDF/PPTX/Excel".
+version: 2.0.0
 requires:
   - audette-mcp
 ---
 
-## Deprecated
-
-This skill has been superseded by the centralized `soapbox-report` plugin and its `report-renderer` subagent. Use that instead for all new report generation.
-
-Replacement template names in `soapbox-report`:
-
-| Report Type | Template Name |
-|---|---|
-| Decarbonization roadmap / retrofit plan | `retrofit-plan` |
-| BPS compliance summary | `bps-compliance` |
-| Acquisition due diligence / RSRA | `rsra` |
-| Portfolio summary / Scope 3 inventory | `portfolio-summary` |
-| GRESB submission | `gresb-submission` |
-| TCFD / climate disclosure | `crrem-assessment` |
-
-To dispatch via `soapbox-report`, pass `{ "template": "<name>", "data": { ... } }` to the `report-renderer` subagent.
-
----
-
 # Audette Report Generator
 
-Generate professional HTML reports from Audette building data. Iterate until the user
-approves, then save the output as an example for future use.
+Generate professional, client-ready reports from Audette building data. The output is
+a self-contained HTML artifact — no Paged.js, no external CDN, no template engine.
 
-**Required:** Audette MCP
-
----
-
-## Template Library
-
-Reports are driven by a template library at `assets/templates/`. Each report type has:
-
-```
-assets/templates/<type>/
-  manifest.md          ← MCP tools needed, sections, formatting rules
-  examples/            ← rendered HTML examples (shipped + user-saved)
-    01-standard.html
-    <YYYY-MM-DD>-<name>.html
-```
-
-The `manifest.md` tells you what data to fetch and what to produce.
-The `examples/` files are complete rendered reports — use them as style references, not as fill-in-the-blank templates.
-
-Available types:
-
-| Type | Manifest |
-|------|---------|
-| `decarb-roadmap` | `assets/templates/decarb-roadmap/manifest.md` |
-| `bps-compliance` | `assets/templates/bps-compliance/manifest.md` |
-
-New types can be added by dropping a folder with a `manifest.md` — no skill changes needed.
+For sustainability-specific acquisition analysis (RSRA), see the `rapid-sustainability-risk`
+skill, which provides detailed underwriting guidance. This skill handles the general
+report-writing flow for any Audette report type.
 
 ---
 
 ## Pre-flight
 
-Call `switch_customer_account` with the Audette customer account UID from the system prompt.
-This is required before any Audette write operations — omitting it causes HTTP 401.
+Call `switch_customer_account` with the Audette customer account UID from the system prompt
+before any MCP calls. If no UID is available, call `list_customer_accounts` and ask.
 
-If no account UID is in the system prompt, call `list_customer_accounts` and ask the user to select one.
+---
 
 ## Step 1: Classify Report Type
 
-If the type is not clear from context, ask:
+If not clear from context, ask:
 
 > "Which report would you like?
 > 1. Decarbonization Roadmap — retrofit plan, emissions trajectory, financial projections
 > 2. BPS Compliance Summary — applicable regulations, penalty exposure, path to compliance
-> 3. Acquisition Due Diligence — building assessment for property acquisition
+> 3. Rapid Sustainability Risk Assessment (RSRA) — acquisition due diligence
 > 4. Portfolio Summary — overview of multiple buildings"
 
-For building-level reports, identify the target building from the system prompt (`Audette building UID`) or call `list_buildings` to find it by name or address.
+For building-level reports, identify the target building from the system prompt or call
+`list_buildings`.
 
 ---
 
-## Step 3: Select Example
+## Step 2: Gather Data
 
-Scan `assets/templates/<type>/examples/` for available example files. List them with their
-dates and names:
+Call the relevant Audette MCP tools for the report type. Key tools by report type:
 
-> "I found these examples for [report type]:
->
-> 1. `01-standard.html` — shipped example, full report
-> 2. `2026-06-15-parkview-towers.html` — approved 2026-06-15
-> 3. Start fresh (no example reference)
->
-> Which should I base this on?"
+- **Decarb Roadmap**: `get_building`, `get_carbon_emissions`, `get_retrofit_measures`,
+  `get_financial_projections`, `get_incentive_programs`
+- **BPS Compliance**: `get_building`, `get_carbon_emissions`, `get_bps_regulations`,
+  `get_compliance_trajectory`
+- **RSRA**: `get_building`, `get_carbon_emissions`, `get_energy_consumption`,
+  `get_retrofit_measures` — see `rapid-sustainability-risk` skill for full guidance
+- **Portfolio Summary**: `list_buildings`, `get_carbon_emissions` for each building
 
-If no examples exist yet, skip the question and proceed fresh using the manifest only.
-
-If the user selects an example, read that file. Use it as the style and structure reference —
-understand the layout, visual choices, and section order. Do not copy its data.
+If a tool returns no data for a required section, note the gap — render a callout in
+that section rather than omitting it or fabricating values. Never invent numbers.
 
 ---
 
-## Step 4: Load Data from Audette MCP
+## Step 3: Generate HTML Report
 
-Read `assets/templates/<type>/manifest.md`. Call each listed MCP tool and extract the
-key fields documented in the manifest.
+Write a **complete, self-contained HTML file**:
 
-If a tool returns no data for a required section, note it — you will add a data gap
-callout in that section rather than omitting it or fabricating values.
+- Inline all CSS in a `<style>` block — no external stylesheets
+- Use system fonts: `font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`
+- No external CDN dependencies (no Chart.js CDN, no Google Fonts)
+- For charts, use inline SVG or HTML/CSS bar charts
+- All figures come directly from MCP responses — no placeholders or fabricated values
+- Missing fields render as `—`
+- Include a print-to-PDF button (`.no-print` class, top-right corner):
+  `<button class="no-print" onclick="window.print()">Save as PDF</button>`
+- The file must render correctly when opened directly in a browser
 
-Optional: ask if the user has a client logo. Accept a local file path, read it, and
-convert to a base64 data URL for inline embedding.
-
----
-
-## Step 5: Generate Report
-
-Write a complete, self-contained HTML file:
-
-- Follow the section order from the manifest
-- Use the selected example as a style reference (colors, typography, layout, chart style)
-- Use `assets/design-tokens.md` for all color and typography values
-- Embed Chart.js from CDN: `https://cdn.jsdelivr.net/npm/chart.js`
-- All charts use real data from the MCP response — no placeholder values
-- Missing fields render as `—`; add a data gap callout (see `assets/components/data-gap-callout.html`) when a critical section is affected
-- Embed all assets inline (logo as base64, styles in `<style>` tags) — the file must be self-contained
-- Include a `.no-print` save button in the top-right corner with instructions to use File → Print → Save as PDF
-
-The HTML should be complete and renderable — no `{{placeholders}}` remaining.
+Design conventions:
+- Dark navy header (`#0F1923`) with white text
+- Green accent (`#52B788`) for highlights, signal indicators, call-to-action elements
+- Clean white body with subtle gray borders (`#E5E7EB`)
+- Section cards with light background (`#F9FAFB`)
+- Professional typography: 14px body, 11px labels, 20-28px headings
 
 ---
 
-## Step 6: Iteration Loop
+## Step 4: Present and Iterate
 
-Present the report as an artifact. Ask:
+Call `create_artifact` with the HTML content so it opens in the preview pane.
 
+Ask:
 > "Here's the [report type] for [building name]. Does this look right, or would you like any changes?"
 
-**If the user requests changes:**
-
-- Cosmetic changes (colors, fonts, layout, wording) → regenerate without re-fetching MCP data
-- New sections or different data scope → fetch additional data as needed, then regenerate
-- Apply feedback cumulatively — each iteration builds on the last version
+**Cosmetic changes** (colors, layout, wording) → regenerate without re-fetching MCP data.
+**New sections or different data scope** → fetch additional data, then regenerate.
 
 Keep iterating until the user explicitly approves.
 
 ---
 
-## Step 7: Save Example
+## Step 5: Save
 
-When the user approves, ask:
+When approved, call `save_file` with:
+- `name`: `{asset-slug}-{template}.html` — e.g. `prose-frontier-rsra.html`
+  (always lowercase, always a hyphen before the extension)
+- `folder`: `"Reports"`
+- `mime_type`: `"text/html"`
 
-> "Save this as an example for future [report type] reports? It will appear as an option next time."
+One `save_file` call per report. Do not also save a .txt summary.
 
-If yes, ask for a short name (e.g. "parkview-towers", "minimal-layout", "full-incentives"):
+---
 
-> "What should I call it? (e.g. 'parkview-towers')"
+## Step 6: Export (Optional)
 
-Save the approved HTML to:
-```
-assets/templates/<type>/examples/<YYYY-MM-DD>-<name>.html
-```
+If the user wants a PDF, PPTX, or Excel export, use the scripts in `scripts/`:
 
-Update the manifest's examples table to include the new entry.
+| Format | Script | Notes |
+|--------|--------|-------|
+| PDF | `scripts/export_pdf.py` (primary) or `scripts/export_pdf.js` (fallback) | Playwright-based; requires Chromium |
+| PPTX | `scripts/build_pptx.py` | Requires python-pptx (auto-installs) |
+| Excel | `scripts/build_xlsx.py` | Requires openpyxl (auto-installs) |
 
-Confirm:
-> "Saved as `assets/templates/decarb-roadmap/examples/2026-06-15-parkview-towers.html`. It will appear as an option the next time you generate a [report type]."
+Run with `python scripts/export_pdf.py --input <path-to-html> --output <path>.pdf`.
+Run with `python scripts/build_pptx.py --template rsra --data <path>.json --output <path>.pptx`.
 
 ---
 
 ## Rules
 
-- Always call `switch_customer_account` before any MCP calls
-- Never fabricate numbers — every figure must come from an MCP tool response
-- Always ask which example to use before generating (when examples exist)
-- Always iterate until the user approves — do not save without approval
-- Always save after approval — ask even if the user doesn't explicitly request it
-- The HTML file must be completely self-contained (no external file references except CDN)
+- Always call `switch_customer_account` before MCP calls
+- Never fabricate numbers — every figure must come from MCP
+- Always iterate until the user approves before saving
+- HTML must be completely self-contained (no external file references)
 - Cosmetic revisions do not require re-fetching MCP data
-- New examples do not modify the manifest's MCP tools or sections — they only extend the examples table
