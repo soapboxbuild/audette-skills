@@ -177,7 +177,7 @@ If any individual building creation fails, note the failure, report it clearly a
 
 ### Primary building
 
-Call `audette__create_property_for_building` on the first (primary) building. Store the returned `property_uid` — you need it for the asset patch and for linking non-primary buildings.
+Call `audette__create_property_for_building` on the first (primary) building. **You MUST pass a `property_name`** — use the asset name from the Audette Onboarding Context (e.g., "Prose Frontier"). Without a property name, the property will not appear in any dropdown and cannot be found by the AI assistant. Store the returned `property_uid` — you need it for the asset patch and for linking non-primary buildings.
 
 ### Non-primary buildings (if more than one)
 
