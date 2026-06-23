@@ -148,9 +148,22 @@ Optional but valuable if available: `height_m`, `num_units`, `overture_id`
 
 ---
 
-## Step 4 — Create Buildings (Parallel)
+## Step 4 — Create Buildings (MANDATORY PARALLEL — ALL IN ONE TURN)
 
-Once the user confirms, call `audette__create_building` for **all buildings simultaneously in one turn** — do not wait for each to finish before starting the next. Parallel creation saves significant time on multi-building assets.
+Once the user confirms, you MUST call `audette__create_building` for **every building in a single turn** — emit all tool calls simultaneously before waiting for any result. Do NOT create one building, wait for the result, then create the next. That is the wrong approach and will be slow.
+
+**Correct pattern (11 buildings → 11 simultaneous tool calls in one turn):**
+```
+Turn N: [create_building(bldg1), create_building(bldg2), ..., create_building(bldg11)]  ← all at once
+Turn N+1: receive all results, note each building_uid
+```
+
+**Wrong pattern (do NOT do this):**
+```
+Turn N:   create_building(bldg1)  → wait
+Turn N+1: create_building(bldg2)  → wait   ← sequential, too slow
+...
+```
 
 For each building, capture the returned `building_uid`. Label them clearly (e.g., "Bldg 1 UID", "Bldg 2 UID") — you need them for Steps 5 and beyond.
 
