@@ -22,7 +22,6 @@ Output: JSON to stdout with keys:
 
 import argparse
 import json
-import math
 import sys
 from functools import reduce
 from typing import Any
@@ -127,7 +126,6 @@ def format_multifamily_card(annual: list, exit_value: float, irr_val: float,
                              em: float, units: int, asset_name: str) -> str:
     going_in_noi = annual[0]["noi"]
     stab_noi = annual[-1]["noi"]
-    going_in_cap = going_in_noi / (exit_value / annual[-1]["noi"] * annual[-1]["noi"]) if annual[-1]["noi"] else 0
     exit_cap_implied = annual[-1]["noi"] / exit_value if exit_value else 0
 
     lines = [
@@ -158,6 +156,15 @@ def build_commercial_dcf(inputs: dict) -> dict:
     mgmt_fee_pct = inputs.get("management_fee_pct", 0.03)
     capex_psf = inputs.get("capex_psf", 1.5)
 
+    # TI/LC inputs — capital costs at lease renewal
+    ti_psf_at_renewal = inputs.get("ti_psf_at_renewal", 0.0)
+    lc_pct_of_lease_value = inputs.get("lc_pct_of_lease_value", 0.0)
+    avg_lease_term_years = inputs.get("avg_lease_term_years", 5)
+    renewal_probability = inputs.get("renewal_probability", 0.65)
+
+    # Annual fraction of leases that roll (need to be re-leased)
+    annual_turnover = (1 / avg_lease_term_years) * (1 / renewal_probability)
+
     # Simple lease-roll model: blend passing → market over hold
     annual = []
     for year in range(1, hold + 1):
@@ -180,12 +187,18 @@ def build_commercial_dcf(inputs: dict) -> dict:
         management_fee = gross_revenue * mgmt_fee_pct
         noi = gross_revenue - net_opex - management_fee
 
+        # TI/LC: capital outflows at lease renewal — reduce unlevered CF but NOT NOI
+        ti_cost = sf * annual_turnover * ti_psf_at_renewal
+        lc_cost = sf * annual_turnover * effective_rent_psf * avg_lease_term_years * lc_pct_of_lease_value
+        ti_lc_cost = ti_cost + lc_cost
+
         annual.append({
             "year": year,
             "gross_revenue": round(gross_revenue, 0),
             "egi": round(gross_revenue, 0),
             "noi": round(noi, 0),
-            "unlevered_cf": round(noi, 0),
+            "ti_lc_cost": round(ti_lc_cost, 0),
+            "unlevered_cf": round(noi - ti_lc_cost, 0),
             "effective_rent_psf": round(effective_rent_psf, 2),
         })
 
