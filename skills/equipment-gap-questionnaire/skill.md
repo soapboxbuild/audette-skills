@@ -165,7 +165,7 @@ equipment section, accounting for typical operator responses.
 | Schema Field | Bad Question | Good Question |
 |--------------|--------------|---------------|
 | `central_plant_heater_type` | "What's the central_plant_heater_type enum value?" | "What type of heating system serves the building? (Boiler, furnace, heat pump, or other?)" |
-| `central_plant_heater_size` | "What's the heater size in kW?" | "What's the total heating capacity? (Can be in MBH, BTU/hr, kW, or tons)" |
+| `central_plant_heater_size` | "What's the heater size in kW?" | "What's the total heating capacity? (Can be in MBH, BTU/hr, kW, or tons — I'll convert to tons)" |
 | `air_handling_equipment_exists` | "Does air_handling_equipment_exists = true?" | "Is there a central air handling unit or ventilation system?" |
 
 ---
@@ -191,7 +191,7 @@ order (critical → high → medium → low).
      ```
      central_plant_heater_exists: true
      central_plant_heater_type: "gas_boiler"  (Weil-McLain typically makes non-condensing)
-     central_plant_heater_size: 293.0  (1000 MBH × 0.293 kW/MBH = 293 kW)
+     central_plant_heater_size: 83.3  (1000 MBH ÷ 12 = 83.3 tons)
      ```
 
 4. **Ask follow-ups for ambiguity**
@@ -208,9 +208,9 @@ Building operators will respond conversationally. Parse key information:
 
 | Operator Response | Extract |
 |-------------------|---------|
-| "2 boilers, 500 MBH each" | Count: 2, Size per unit: 500 MBH → Total: 1000 MBH = 293 kW |
+| "2 boilers, 500 MBH each" | Count: 2, Size per unit: 500 MBH → Total: 1000 MBH ÷ 12 = 83.3 tons |
 | "Old gas boiler, maybe 1995" | Type: gas_boiler, Installation year: 1995 |
-| "We have Carrier rooftop units on each floor, probably 15 total, 5 ton each" | Type: split_system_air_conditioner (likely), Count: 15, Size per unit: 5 tons = 17.6 kW → Total: 264 kW |
+| "We have Carrier rooftop units on each floor, probably 15 total, 5 ton each" | Type: split_system_air_conditioner (likely), Count: 15, Size per unit: 5 tons → Total: 75 tons |
 | "Hot water is in each suite, electric" | central_distribution: false, Type: electric_storage |
 | "No chiller, just window ACs" | central_plant_cooler_exists: false |
 
@@ -279,19 +279,19 @@ I've gathered the following information. Please review and confirm before I subm
 
 ### Heating System ✓
 - **Type:** Gas boiler (standard, non-condensing)
-- **Capacity:** 293 kW (1,000 MBH total — two 500 MBH boilers)
+- **Capacity:** 83.3 tons (1,000 MBH total — two 500 MBH boilers)
 - **Distribution:** Hydronic baseboard radiators
 - **Installation Year:** 2005
 
 ### Cooling System ✓
 - **Type:** Rooftop units (split system air conditioners)
-- **Capacity:** 264 kW (75 tons total — 15 units @ 5 tons each)
+- **Capacity:** 75 tons (15 units @ 5 tons each)
 - **Installation Year:** 2010
 
 ### Domestic Hot Water ✓
 - **Configuration:** Suite-level (not centrally distributed)
 - **Type:** Electric storage water heaters
-- **Capacity:** 189 litres per unit (50 gallons)
+- **Capacity:** 4.5 kW element rating ÷ 3.517 = **1.28 tons** per unit (50 gal tank volume noted for reference — volume is not itself convertible to tons)
 - **Installation Year:** 2015
 
 [... continue for all sections ...]
@@ -356,7 +356,7 @@ be re-run automatically.
 - **Be generous with interpretation**: "Old gas boilers" → infer `gas_boiler` type
 - **Confirm assumptions**: "I'm assuming these are standard gas boilers, not condensing.
   Correct?"
-- **Handle units gracefully**: Convert MBH to kW, tons to kW, gallons to litres as needed
+- **Handle units gracefully**: Convert MBH, BTU/hr, or kW to ton-equivalents for every heating/cooling/DHW size field — never submit kW or gallons/litres for these fields
 - **Accept estimates**: Installation year ±2 years is fine, capacity ±10% is fine
 
 ### Unit Conversions
@@ -365,10 +365,12 @@ Keep these conversions ready:
 
 | From | To | Formula |
 |------|-----|---------|
-| MBH (1000 BTU/hr) | kW | MBH × 0.293 |
-| Tons (cooling) | kW | Tons × 3.517 |
-| Gallons | Litres | Gallons × 3.785 |
-| BTU/hr | kW | BTU/hr ÷ 3412 |
+| MBH (1000 BTU/hr) | tons | MBH ÷ 12 |
+| BTU/hr | tons | BTU/hr ÷ 12,000 |
+| kW | tons | kW ÷ 3.517 |
+| Gallons | Litres | Gallons × 3.785 (tank volume only — not a capacity conversion) |
+
+> **All heating, cooling, and DHW capacity sizes** (`central_plant_cooler_size`, `central_plant_heater_size`, `central_plant_heat_pump_size`, `terminal_cooler_size`, `terminal_heater_size`, `terminal_heater_cooler_size`, `heat_pump_size`, `domestic_hot_water_heater_size`) must be submitted as **ton-equivalents** — never kW, never litres/gallons. Per Christopher (2026-07-16): "all heating cooling and DHW size must be converted to ton equivalents." A DHW heater's thermal/recovery rating converts to tons the same way as any other heating capacity; tank **volume** (gallons/litres) is a separate quantity that cannot be converted to tons — if only volume is documented with no power rating, say so rather than forcing a number.
 
 ### Enum Mapping
 

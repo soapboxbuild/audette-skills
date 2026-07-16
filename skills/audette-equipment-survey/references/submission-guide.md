@@ -41,7 +41,7 @@ sections that don't apply. **Do not omit any top-level key — the API will reje
     "central_plant_cooler_exists": bool,                    # REQUIRED
     "central_plant_cooler_type": str | null,
     "central_plant_cooler_terminal_units": str | null,
-    "central_plant_cooler_size": float | null,              # kW (1 ton = 3.517 kW)
+    "central_plant_cooler_size": float | null,              # tons
     "central_plant_cooler_average_installation_year": int | null
   },
 
@@ -49,14 +49,14 @@ sections that don't apply. **Do not omit any top-level key — the API will reje
     "central_plant_heater_exists": bool,                    # REQUIRED
     "central_plant_heater_type": str | null,
     "central_plant_heater_terminal_units": str | null,
-    "central_plant_heater_size": float | null,              # kW (MBH × 0.293)
+    "central_plant_heater_size": float | null,              # tons (ton-equivalent)
     "central_plant_heater_average_installation_year": int | null
   },
 
   "central_plant_heat_pump": {
     "central_plant_heat_pump_exists": bool,                 # REQUIRED
     "central_plant_heat_pump_type": str | null,
-    "central_plant_heat_pump_size": float | null,           # kW
+    "central_plant_heat_pump_size": float | null,           # tons (ton-equivalent)
     "central_plant_heat_pump_average_installation_year": int | null
   },
 
@@ -64,7 +64,7 @@ sections that don't apply. **Do not omit any top-level key — the API will reje
     "domestic_hot_water_heater_exists": bool,               # REQUIRED — must be true
     "domestic_hot_water_heater_central_distribution": bool, # REQUIRED
     "domestic_hot_water_heater_type": str | null,
-    "domestic_hot_water_heater_size": float | null,         # litres (gallons × 3.785)
+    "domestic_hot_water_heater_size": float | null,         # tons (ton-equivalent thermal capacity, NOT tank volume)
     "domestic_hot_water_heater_average_installation_year": int | null
   },
 
@@ -79,15 +79,15 @@ sections that don't apply. **Do not omit any top-level key — the API will reje
   "terminal_cooler": {
     "terminal_cooler_exists": bool,                         # REQUIRED
     "terminal_cooler_units": str | null,
-    "terminal_cooler_size": float | null,                   # kW
+    "terminal_cooler_size": float | null,                   # tons
     "terminal_cooler_average_installation_year": int | null
   },
 
   "terminal_heater": {
     "terminal_heater_exists": bool,                         # REQUIRED
     "terminal_heater_units": str | null,
-    "terminal_heater_size": float | null,                   # kW (heating capacity)
-    "terminal_heater_cooler_size": float | null,            # kW (cooling, for PTACs)
+    "terminal_heater_size": float | null,                   # tons (ton-equivalent heating capacity)
+    "terminal_heater_cooler_size": float | null,            # tons (for PTACs)
     "terminal_heater_average_installation_year": int | null
   },
 
@@ -98,7 +98,7 @@ sections that don't apply. **Do not omit any top-level key — the API will reje
     "heat_pump_cooling_coefficient_of_performance": float | null,
     "heat_pump_heating_load_ratio": float | null,           # 0.0–1.0
     "heat_pump_cooling_load_ratio": float | null,           # 0.0–1.0
-    "heat_pump_size": float | null,                         # kW per unit
+    "heat_pump_size": float | null,                         # tons per unit (ton-equivalent)
     "heat_pump_installation_year": int | null
   },
 

@@ -39,7 +39,7 @@ Centralized chiller plant with distribution to the building.
 | `central_plant_cooler_exists` | bool | |
 | `central_plant_cooler_type` | enum\|null | `air_cooled_chiller`, `water_cooled_chiller` |
 | `central_plant_cooler_terminal_units` | enum\|null | `baseboards`, `constant_volume_boxes`, `fan_coil_units`, `variable_air_volume_boxes` |
-| `central_plant_cooler_size` | float\|null | kW (1 ton = 3.517 kW) |
+| `central_plant_cooler_size` | float\|null | tons |
 | `central_plant_cooler_average_installation_year` | int\|null | |
 
 ---
@@ -53,7 +53,7 @@ Centralized boiler or furnace plant serving the building.
 | `central_plant_heater_exists` | bool | |
 | `central_plant_heater_type` | enum\|null | `condensing_gas_boiler`, `electric_furnace`, `electric_resistance_boiler`, `gas_boiler`, `gas_furnace`, `high_efficiency_gas_furnace`, `hydronic_furnace` |
 | `central_plant_heater_terminal_units` | enum\|null | `baseboards`, `constant_volume_boxes`, `fan_coil_units`, `variable_air_volume_boxes` |
-| `central_plant_heater_size` | float\|null | kW (MBH × 0.293 = kW) |
+| `central_plant_heater_size` | float\|null | tons (ton-equivalent — see skill.md's unit-conversions note) |
 | `central_plant_heater_average_installation_year` | int\|null | |
 
 **Type guide:**
@@ -75,7 +75,7 @@ Centralized heat pump (not suite-level). Use `heat_pump` for distributed mini-sp
 |-------|------|-------------|
 | `central_plant_heat_pump_exists` | bool | |
 | `central_plant_heat_pump_type` | enum\|null | `air_source_heat_pump`, `ground_source_heat_pump` |
-| `central_plant_heat_pump_size` | float\|null | kW |
+| `central_plant_heat_pump_size` | float\|null | tons (ton-equivalent — see skill.md's unit-conversions note) |
 | `central_plant_heat_pump_average_installation_year` | int\|null | |
 
 ---
@@ -89,7 +89,7 @@ Building domestic hot water system.
 | `domestic_hot_water_heater_exists` | bool | |
 | `domestic_hot_water_heater_central_distribution` | bool | `true` = central tank + loop; `false` = suite-level units |
 | `domestic_hot_water_heater_type` | enum\|null | `electric_heater`, `gas_heater`, `indirect_heater` |
-| `domestic_hot_water_heater_size` | float\|null | litres (gallons × 3.785) |
+| `domestic_hot_water_heater_size` | float\|null | tons (ton-equivalent thermal/recovery capacity — NOT tank volume; see skill.md's DHW note) |
 | `domestic_hot_water_heater_average_installation_year` | int\|null | |
 
 **Note:** The API uses three simplified types. See `terminology-map.md` for document-to-value mapping (gas storage, tankless, HPWH, etc. all map to one of these three).
@@ -120,7 +120,7 @@ Suite-level or zone-level cooling-only terminal equipment.
 |-------|------|-------------|
 | `terminal_cooler_exists` | bool | |
 | `terminal_cooler_units` | enum\|null | `cooling_ptac`, `split_air_conditioner`, `window_air_conditioner` |
-| `terminal_cooler_size` | float\|null | kW total cooling capacity |
+| `terminal_cooler_size` | float\|null | tons |
 | `terminal_cooler_average_installation_year` | int\|null | |
 
 ---
@@ -133,8 +133,8 @@ Suite-level or zone-level heating-only terminal equipment (not heat pumps, not c
 |-------|------|-------------|
 | `terminal_heater_exists` | bool | |
 | `terminal_heater_units` | enum\|null | `condensing_gas_unit_heater`, `electric_baseboard`, `electric_resistance_ptac`, `electric_unit_heater`, `gas_ptac`, `gas_unit_heater` |
-| `terminal_heater_size` | float\|null | kW heating capacity |
-| `terminal_heater_cooler_size` | float\|null | kW cooling capacity (for PTAC units that provide both) |
+| `terminal_heater_size` | float\|null | tons (ton-equivalent heating capacity — see skill.md's unit-conversions note) |
+| `terminal_heater_cooler_size` | float\|null | tons (for PTAC units that provide both) |
 | `terminal_heater_average_installation_year` | int\|null | |
 
 ---
@@ -151,7 +151,7 @@ Distributed (suite-level) heat pumps — mini-splits, water loop heat pumps.
 | `heat_pump_cooling_coefficient_of_performance` | float\|null | e.g. `3.5` |
 | `heat_pump_heating_load_ratio` | float\|null | 0.0–1.0 fraction of heating load served |
 | `heat_pump_cooling_load_ratio` | float\|null | 0.0–1.0 fraction of cooling load served |
-| `heat_pump_size` | float\|null | kW per unit |
+| `heat_pump_size` | float\|null | tons per unit (ton-equivalent — see skill.md's unit-conversions note) |
 | `heat_pump_installation_year` | int\|null | |
 
 **Visual identification from rooftop imagery:** Arrays of small gray boxes along the roof centerline typically indicate `split_air_source_heat_pump` systems. Count ≈ number of suites.

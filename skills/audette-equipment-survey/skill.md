@@ -79,19 +79,19 @@ Start with `_exists` flags — they determine whether the rest of a section matt
 
 **Air handling:** Look for "AHU", "MAU", "makeup air", "ERV", "HRV", "DOAS", "exhaust fan". Note heating/cooling integration and supply airflow rate (CFM).
 
-**Central plant heater:** Look for "boiler", "furnace". Note fuel type, efficiency (AFUE), brand. Note distribution: baseboard, fan coil, VAV. Check for district heat connections.
+**Central plant heater:** Look for "boiler", "furnace". Note fuel type, efficiency (AFUE), brand. Note distribution: baseboard, fan coil, VAV. Check for district heat connections. Note capacity — submit in **ton-equivalents** (do not convert to kW).
 
-**Central plant cooler:** Look for "chiller", "cooling tower", "condenser water loop". Note tonnage (convert: 1 ton = 3.517 kW).
+**Central plant cooler:** Look for "chiller", "cooling tower", "condenser water loop". Note tonnage — submit in **tons** (do not convert to kW).
 
-**Central plant heat pump:** Look for central-plant-level heat pumps (not suite mini-splits). Note ASHP vs. GSHP.
+**Central plant heat pump:** Look for central-plant-level heat pumps (not suite mini-splits). Note ASHP vs. GSHP. Note capacity — submit in **ton-equivalents** (do not convert to kW).
 
-**Domestic hot water:** Look for "DHW", "water heater", "hot water tank". Note fuel, central vs. suite-level, tank size in gallons (convert: × 3.785 = litres).
+**Domestic hot water:** Look for "DHW", "water heater", "hot water tank". Note fuel, central vs. suite-level. Note capacity as a **ton-equivalent** (see the note on DHW below — this is the heater's thermal capacity, not tank volume).
 
 **Rooftop units:** Look for "RTU", "packaged unit on roof". Note heating fuel and whether cooling is DX. Note supply airflow if documented.
 
 **Terminal cooler:** Look for suite-level or zone-level cooling-only equipment — PTACs, window ACs, split ACs. Distinct from heat pumps.
 
-**Terminal heater:** Look for suite-level or zone-level heating-only equipment — electric baseboards, unit heaters, gas PTACs.
+**Terminal heater:** Look for suite-level or zone-level heating-only equipment — electric baseboards, unit heaters, gas PTACs. Note capacity — submit in **ton-equivalents** (do not convert to kW).
 
 **Distributed heat pumps:** Look for "mini-split", "ductless heat pump", "water loop heat pump", "WLHP". Note COP if in specs. Note whether heat pumps handle all heating/cooling load or share it with another system (→ `load_ratio`).
 
@@ -105,10 +105,14 @@ Start with `_exists` flags — they determine whether the rest of a section matt
 
 | From | To | Multiply by |
 |---|---|---|
-| MBH | kW | × 0.293 |
-| tons | kW | × 3.517 |
-| BTU/h | kW | ÷ 3,412 |
-| gallons | litres | × 3.785 |
+| MBH | tons | ÷ 12 |
+| BTU/h | tons | ÷ 12,000 |
+| kW | tons | ÷ 3.517 |
+| gallons | litres | × 3.785 (tank volume only — see DHW note below) |
+
+> **All heating, cooling, and DHW capacity sizes** (`central_plant_cooler_size`, `central_plant_heater_size`, `central_plant_heat_pump_size`, `terminal_cooler_size`, `terminal_heater_size`, `terminal_heater_cooler_size`, `heat_pump_size`, `domestic_hot_water_heater_size`) must be submitted as **ton-equivalents** — never kW, never litres/gallons. Per Christopher (2026-07-16): "all heating cooling and DHW size must be converted to ton equivalents." This overrides anything in `references/equipment-schema.md` or `references/submission-guide.md` that still shows kW or litres for these fields — if you see that, the reference doc is stale, not the requirement.
+>
+> **DHW note:** a DHW heater's nameplate/recovery capacity is a thermal rating (BTU/h or kW input) — convert that to tons the same way as any other heating capacity. Tank **volume** (gallons/litres) is a separate, physically distinct quantity that cannot be converted to tons; if only tank volume is documented and no thermal/recovery rating is available, say so explicitly rather than forcing a number.
 
 ### Decrypting password-protected PDFs
 
@@ -141,7 +145,7 @@ Section               | Field                        | Value              | Sour
 ----------------------|------------------------------|--------------------|------------------
 central_plant_heater  | type                         | gas_boiler         | PCNA p.14
 central_plant_heater  | terminal_units               | baseboards         | PCNA p.14
-central_plant_heater  | size                         | 105 kW (3×120 MBH) | PCNA p.14
+central_plant_heater  | size                         | 30 tons (3×120 MBH ÷ 12) | PCNA p.14
 central_plant_heater  | install_year                 | 1994               | PCNA p.14
 domestic_hot_water    | type                         | gas_heater         | PCNA p.15
 domestic_hot_water    | central_distribution         | true               | PCNA p.15
