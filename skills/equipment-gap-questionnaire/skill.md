@@ -291,7 +291,7 @@ I've gathered the following information. Please review and confirm before I subm
 ### Domestic Hot Water ✓
 - **Configuration:** Suite-level (not centrally distributed)
 - **Type:** Electric storage water heaters
-- **Capacity:** 4.5 kW element rating ÷ 3.517 = **1.28 tons** per unit (50 gal tank volume noted for reference — volume is not itself convertible to tons)
+- **Capacity:** 4.5 kW element rating ÷ 3.517 = **1.28 tons** per unit (50 gal tank; nameplate rating used directly — if only tank volume had been known, the fallback rule of thumb `gallons ÷ 40` would give ≈1.25 tons, consistent with the nameplate figure here)
 - **Installation Year:** 2015
 
 [... continue for all sections ...]
@@ -370,7 +370,7 @@ Keep these conversions ready:
 | kW | tons | kW ÷ 3.517 |
 | Gallons | Litres | Gallons × 3.785 (tank volume only — not a capacity conversion) |
 
-> **All heating, cooling, and DHW capacity sizes** (`central_plant_cooler_size`, `central_plant_heater_size`, `central_plant_heat_pump_size`, `terminal_cooler_size`, `terminal_heater_size`, `terminal_heater_cooler_size`, `heat_pump_size`, `domestic_hot_water_heater_size`) must be submitted as **ton-equivalents** — never kW, never litres/gallons. Per Christopher (2026-07-16): "all heating cooling and DHW size must be converted to ton equivalents." A DHW heater's thermal/recovery rating converts to tons the same way as any other heating capacity; tank **volume** (gallons/litres) is a separate quantity that cannot be converted to tons — if only volume is documented with no power rating, say so rather than forcing a number.
+> **All heating, cooling, and DHW capacity sizes** (`central_plant_cooler_size`, `central_plant_heater_size`, `central_plant_heat_pump_size`, `terminal_cooler_size`, `terminal_heater_size`, `terminal_heater_cooler_size`, `heat_pump_size`, `domestic_hot_water_heater_size`) must be submitted as **ton-equivalents** — never kW, never litres/gallons. Per Christopher (2026-07-16): "all heating cooling and DHW size must be converted to ton equivalents." A DHW heater's thermal/recovery rating converts to tons the same way as any other heating capacity, and is preferred whenever documented. **Rule of thumb when only tank volume is known:** `tons ≈ gallons ÷ 40` (litres ÷ 151) — based on typical storage water heater sizing (~4.5 kW element per 40–50 gal tank ≈ 1 ton per ~40 gal). Flag when this fallback was used instead of a documented nameplate rating.
 
 ### Enum Mapping
 

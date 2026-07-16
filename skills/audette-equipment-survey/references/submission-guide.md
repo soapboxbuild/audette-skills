@@ -64,7 +64,7 @@ sections that don't apply. **Do not omit any top-level key — the API will reje
     "domestic_hot_water_heater_exists": bool,               # REQUIRED — must be true
     "domestic_hot_water_heater_central_distribution": bool, # REQUIRED
     "domestic_hot_water_heater_type": str | null,
-    "domestic_hot_water_heater_size": float | null,         # tons (ton-equivalent thermal capacity, NOT tank volume)
+    "domestic_hot_water_heater_size": float | null,         # tons (ton-equivalent; prefer nameplate rating, else gallons ÷ 40)
     "domestic_hot_water_heater_average_installation_year": int | null
   },
 

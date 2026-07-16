@@ -89,7 +89,7 @@ Building domestic hot water system.
 | `domestic_hot_water_heater_exists` | bool | |
 | `domestic_hot_water_heater_central_distribution` | bool | `true` = central tank + loop; `false` = suite-level units |
 | `domestic_hot_water_heater_type` | enum\|null | `electric_heater`, `gas_heater`, `indirect_heater` |
-| `domestic_hot_water_heater_size` | float\|null | tons (ton-equivalent thermal/recovery capacity — NOT tank volume; see skill.md's DHW note) |
+| `domestic_hot_water_heater_size` | float\|null | tons (ton-equivalent thermal/recovery capacity — prefer nameplate rating; fallback `gallons ÷ 40` if only tank volume is known; see skill.md's DHW note) |
 | `domestic_hot_water_heater_average_installation_year` | int\|null | |
 
 **Note:** The API uses three simplified types. See `terminology-map.md` for document-to-value mapping (gas storage, tankless, HPWH, etc. all map to one of these three).
