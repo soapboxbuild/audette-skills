@@ -113,12 +113,17 @@ There is no `type` field — describe the heating and cooling capabilities separ
 
 ## Unit conversions
 
+**All `*_size` capacity fields submit in TONS** (heating, cooling, and DHW alike — never kW, never
+litres/gallons; see skill.md). Convert TO tons:
+
 | From | To | Multiply by |
 |---|---|---|
-| MBH (heating capacity) | kW | × 0.293 |
-| tons (cooling capacity) | kW | × 3.517 |
-| BTU/h | kW | ÷ 3,412 |
-| gallons (tank volume) | litres | × 3.785 |
+| MBH (heating capacity) | **tons** | ÷ 12 |
+| BTU/h | **tons** | ÷ 12,000 |
+| kW | **tons** | ÷ 3.517 |
+| DHW tank volume (gallons), only if no nameplate | **tons** | ÷ 40 (fallback — flag it) |
+
+(Airflow fields `*_supply_air_rate` are the sole exception: submit in CFM, not tons.)
 
 ---
 

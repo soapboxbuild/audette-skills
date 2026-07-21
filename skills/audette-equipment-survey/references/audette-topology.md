@@ -114,7 +114,11 @@ confirmation table that it is HPWH so the user understands this is an approximat
 `central_distribution = true` means a central tank with recirculation loop serving all
 suites. `false` means individual point-of-use heaters per suite.
 
-**Tank size matters for loss calculation:** Always extract litres (gallons × 3.785).
+**Sizing:** submit `domestic_hot_water_heater_size` in **tons** like every other capacity — convert
+the nameplate/recovery rating (BTU/h ÷ 12,000, kW ÷ 3.517), or when only tank volume is known use the
+fallback `tons ≈ gallons ÷ 40` (see skill.md "DHW note"). **NEVER submit litres or gallons in the
+size field.** (Tank volume in litres is only an internal input to the loss calculation, not the
+submitted size.)
 
 ---
 
@@ -218,7 +222,7 @@ One outdoor unit serves multiple zones — the number of indoor units ≈ number
 **PTAC units** (packaged terminal air conditioners):
 - If heating AND cooling: `terminal_heater_units = electric_resistance_ptac` (or gas_ptac)
   AND `terminal_cooler_units = cooling_ptac`
-- Note both `terminal_heater_size` (kW heating) AND `terminal_heater_cooler_size` (kW cooling)
+- Note both `terminal_heater_size` (**tons** heating) AND `terminal_heater_cooler_size` (**tons** cooling) — convert MBH ÷ 12, kW ÷ 3.517; NEVER submit kW (see skill.md "Unit conversions")
 
 **Heat pump water heaters (HPWH):**
 Submit as `domestic_hot_water_heater_type = electric_heater`. Note in confirmation table.
