@@ -40,6 +40,18 @@ Call `get_equipment_survey` with the `building_model_uid`.
 If a survey already exists, show a summary of the populated sections and ask:
 > "An equipment survey already exists for this building. Update specific sections, or replace entirely?"
 
+⚠️ **Never assume an existing survey is correct — audit its `*_size` units first.** Earlier runs (and
+imports) stored the WRONG units in `*_size` fields — kW, kW-scaled, or tank volume in litres/gallons —
+which silently corrupt the whole energy model. Before treating a stored survey as usable, sanity-check
+every size against the tons rule (see "Unit conversions" below):
+> - a `domestic_hot_water_heater_size` that equals tank litres/gallons (e.g. `169` for ~45-gal tanks) is wrong;
+> - a `terminal_heater_size`/`_cooler_size` far below the load the equipment implies (e.g. `268` when
+>   254 units × 36 MBH ÷ 12 ≈ 762 tons, or `199` when the DX load is 565 tons) is kW-scaled, not tons.
+
+When a stored size fails the check, **re-derive it in tons and OVERWRITE the survey** via
+`submit_equipment_survey` — do not carry the bad value forward, and do not report the survey as
+"already correctly sized." A complete survey in the wrong units is worse than none.
+
 If updating, focus extraction on the sections the user wants to change.
 
 If this is a first submission, continue with full extraction.
