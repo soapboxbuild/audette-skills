@@ -1075,9 +1075,19 @@ Cannot submit. Please review and correct.
 
 Fix errors or ask user to correct, then retry validation.
 
+### Convert to ton-equivalents BEFORE any submit (the survey owns this)
+
+⚠️ The draft above is in **natural units** (tons, MBH, kW, gallons, CFM). Audette stores every `*_size`
+in **ton-equivalents**, so the draft is NOT submittable as-is. The conversion is owned by the
+**`audette-equipment-survey`** skill — do NOT hand-roll it here. Before any `submit_equipment_survey`
+call below, hand the natural-unit draft to that skill (or apply its `references/submission-guide.md`
+"Unit conversions": MBH ÷ 12; kW ÷ 3.517; DHW nameplate MBH ÷ 12 or gallons ÷ 40; airflow stays CFM;
+PV stays kW). **Never submit a raw natural-unit capacity** — that is exactly the kW/litres bug the
+survey skill exists to prevent.
+
 ### Single Building: Submit Survey
 
-Call `submit_equipment_survey`:
+Call `submit_equipment_survey` (with the ton-converted draft from the step above):
 
 ```
 submit_equipment_survey(

@@ -3,11 +3,13 @@
 Full reference for all sections, fields, and valid enum values.
 Every top-level section must be present in the submitted payload.
 
-> ⚠️ **UNITS — authoritative (per Christopher 2026-07-16):** every `*_size` capacity field submits in
-> **ton-equivalents** — heating, cooling, and DHW alike. **NEVER kW, litres, or gallons.** Convert TO
-> tons: MBH ÷ 12; BTU/h ÷ 12,000; kW ÷ 3.517; DHW from nameplate BTU/h ÷ 12,000, or `gallons ÷ 40`
-> fallback (flag it). The lone airflow exception is `*_supply_air_rate` (RTUs/AHUs) → **CFM**, and PV
-> nameplate → **kW**. Any "kW"/"litres" in the field rows below is STALE — this banner wins.
+> **UNITS — the estimator works in NATURAL engineering units** (cooling in tons, heating in MBH/kW,
+> DHW by nameplate MBH or tank gallons, airflow in CFM, PV in kW — whatever is natural for the
+> equipment). **The estimator does NOT apply Audette's ton-equivalent convention and does NOT submit
+> directly.** It produces a natural-unit draft and hands it to the **`audette-equipment-survey`** skill,
+> which is the single place that converts every capacity to ton-equivalents and calls
+> `submit_equipment_survey` (the survey converts the estimator's numbers the same way it converts
+> anything sourced from documents). So: estimate here in natural units; the survey converts + submits.
 
 ---
 
@@ -43,7 +45,7 @@ Centralized cooling plant serving the whole building (chiller + distribution).
 | `central_plant_cooler_exists` | bool | `true` / `false` |
 | `central_plant_cooler_type` | enum\|null | `air_cooled_chiller`, `water_cooled_chiller` |
 | `central_plant_cooler_terminal_units` | enum\|null | `baseboards`, `constant_volume_boxes`, `fan_coil_units`, `variable_air_volume_boxes` |
-| `central_plant_cooler_size` | float\|null | **tons** (convert: kW ÷ 3.517) |
+| `central_plant_cooler_size` | float\|null | natural: tons (or kW) — survey converts |
 | `central_plant_cooler_average_installation_year` | int\|null | e.g. `2010` |
 
 **Terminal unit guide:**
@@ -63,7 +65,7 @@ Centralized heating plant (boiler, furnace) serving the whole building.
 | `central_plant_heater_exists` | bool | `true` / `false` |
 | `central_plant_heater_type` | enum\|null | `condensing_gas_boiler`, `electric_furnace`, `electric_resistance_boiler`, `gas_boiler`, `gas_furnace`, `high_efficiency_gas_furnace`, `hydronic_furnace` |
 | `central_plant_heater_terminal_units` | enum\|null | `baseboards`, `constant_volume_boxes`, `fan_coil_units`, `variable_air_volume_boxes` |
-| `central_plant_heater_size` | float\|null | **tons** (convert: MBH ÷ 12) |
+| `central_plant_heater_size` | float\|null | natural: MBH (or kW) — survey converts |
 | `central_plant_heater_average_installation_year` | int\|null | e.g. `1998` |
 
 **Type guide:**
@@ -75,9 +77,9 @@ Centralized heating plant (boiler, furnace) serving the whole building.
 - `electric_furnace` — electric forced-air furnace
 - `hydronic_furnace` — water-source (district heat or geo) furnace
 
-**Size conversion examples (to tons):**
-- 3 × 120 MBH boilers → 360 MBH ÷ 12 = **30 tons** total
-- 500 MBH boiler → 500 ÷ 12 = **41.7 tons**
+**Estimate in natural units** (the survey converts to tons at submit):
+- 3 × 120 MBH boilers → estimate **360 MBH** total
+- 500 MBH boiler → estimate **500 MBH**
 
 ---
 
@@ -89,7 +91,7 @@ Centralized heat pump system (not suite-level mini-splits).
 |-------|------|-------------|
 | `central_plant_heat_pump_exists` | bool | `true` / `false` |
 | `central_plant_heat_pump_type` | enum\|null | `air_source_heat_pump`, `ground_source_heat_pump` |
-| `central_plant_heat_pump_size` | float\|null | **tons** |
+| `central_plant_heat_pump_size` | float\|null | natural: tons (or kW) — survey converts |
 | `central_plant_heat_pump_average_installation_year` | int\|null | e.g. `2018` |
 
 ---
@@ -103,7 +105,7 @@ Building domestic hot water system.
 | `domestic_hot_water_heater_exists` | bool | `true` / `false` |
 | `domestic_hot_water_heater_central_distribution` | bool | `true` = central tank + distribution loop; `false` = suite-level water heaters |
 | `domestic_hot_water_heater_type` | enum\|null | `gas_storage`, `electric_storage`, `gas_instantaneous`, `electric_instantaneous`, `heat_pump_water_heater`, `indirect_tank` |
-| `domestic_hot_water_heater_size` | float\|null | **tons** (nameplate BTU/h ÷ 12,000, or gallons ÷ 40 fallback — never litres) |
+| `domestic_hot_water_heater_size` | float\|null | natural: nameplate MBH, or tank gallons — survey converts (never pre-convert here) |
 | `domestic_hot_water_heater_average_installation_year` | int\|null | e.g. `2012` |
 
 **Type guide:**
@@ -126,7 +128,7 @@ Packaged or split rooftop HVAC units serving zones or suites directly.
 | `rooftop_unit_type` | enum\|null | `packaged_terminal_air_conditioner`, `packaged_terminal_heat_pump`, `split_system_air_conditioner`, `split_system_heat_pump` |
 | `rooftop_unit_heating_type` | enum\|null | `electric_resistance`, `gas`, `hydronic` |
 | `rooftop_unit_cooling_type` | enum\|null | `direct_expansion`, `hydronic` |
-| `rooftop_unit_size` | float\|null | RTUs size by AIRFLOW — submit `rooftop_unit_supply_air_rate` in **CFM**, not kW |
+| `rooftop_unit_size` | float\|null | RTUs size by AIRFLOW — estimate `rooftop_unit_supply_air_rate` in CFM |
 | `rooftop_unit_average_installation_year` | int\|null | e.g. `2015` |
 
 ---
@@ -139,7 +141,7 @@ Mini-split or PTAC heat pumps at the suite level (not central plant).
 |-------|------|-------------|
 | `suite_heat_pump_exists` | bool | `true` / `false` |
 | `suite_heat_pump_type` | enum\|null | `mini_split_heat_pump`, `packaged_terminal_heat_pump` |
-| `suite_heat_pump_size` | float\|null | **tons** per unit |
+| `suite_heat_pump_size` | float\|null | natural: tons per unit (or kW) — survey converts |
 | `suite_heat_pump_average_installation_year` | int\|null | e.g. `2020` |
 
 ---
@@ -183,7 +185,7 @@ This is a **list** of objects, each with:
 | `generic_hvac_equipment_type` | string | Free text — describe the equipment |
 | `generic_hvac_equipment_heating_type` | enum\|null | `electric_resistance`, `gas`, `hydronic` |
 | `generic_hvac_equipment_cooling_type` | enum\|null | `direct_expansion`, `hydronic` |
-| `generic_hvac_equipment_size` | float\|null | **tons** (self-tag `size_units`: cfm\|mbtu\|tons) |
+| `generic_hvac_equipment_size` | float\|null | natural (self-tag `size_units`: cfm\|mbtu\|tons) |
 | `generic_hvac_equipment_average_installation_year` | int\|null | e.g. `2008` |
 
 If no generic equipment exists, pass an empty list: `"generic_hvac_equipment": []`
